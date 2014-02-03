@@ -38,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	_aboutDlg(new AboutDialog(this)),
 	_currentlySelectedImageIndex (0),
 	_timeToSwitch(0),
-	_currentListFileName(CSettings().value(SETTINGS_IMAGE_LIST_FILE).toString()),
 	_trayIcon(QApplication::style()->standardIcon(QStyle::SP_MediaStop), this),
 	_wpChanger (WallpaperChanger::instance()),
 	_bListSaved (true),
@@ -88,15 +87,24 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(ui->_imageList, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showImageListContextMenu(const QPoint&)));
 
-	const QString listFileName (CSettings().value(SETTINGS_IMAGE_LIST_FILE, "").toString());
+	const QString listFileName (CSettings().value(SETTINGS_IMAGE_LIST_FILE).toString());
 	if (!listFileName.isEmpty())
-		_wpChanger.loadList(listFileName);
+	{
+		if (_wpChanger.loadList(listFileName))
+		{
+			_currentListFileName = listFileName;
+			if (CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool())
+				_wpChanger.startSwitching();
+		}
+	}
 	else
 		_statusBarMsgLabel.setText("Start by dragging and dropping images");
 
 	const uint wpIndex = CSettings().value(SETTINGS_CURRENT_WALLPAPER, std::numeric_limits<uint>().max()).toUInt();
 	if (wpIndex < std::numeric_limits<uint>().max())
-		wallpaperChanged((size_t)wpIndex);
+	{
+		_wpChanger.setCurrentWpIndex((size_t)wpIndex);
+	}
 
 	_previousListSize = _wpChanger.numImages();
 
@@ -165,8 +173,8 @@ void MainWindow::updateImageList()
 	}
 
 	// Marking the current WP
-	assert(_wpChanger.currentWallpaper() == size_t_max || newImageListWidgetItems.count(_wpChanger.image(_wpChanger.currentWallpaper()).id()) > 0);
-	if (_wpChanger.currentWallpaper() != size_t_max)
+	assert(_wpChanger.currentWallpaper() == invalid_index || newImageListWidgetItems.count(_wpChanger.image(_wpChanger.currentWallpaper()).id()) > 0);
+	if (_wpChanger.currentWallpaper() != invalid_index)
 		newImageListWidgetItems[_wpChanger.image(_wpChanger.currentWallpaper()).id()]->setCurrent();
 
 	// Updating the list
@@ -312,21 +320,20 @@ void MainWindow::removeNonExistingEntries()
 }
 
 // Removes current wallpaper from list
-void MainWindow::removeCurrentWp ()
+void MainWindow::removeCurrentWp()
 {
-	std::vector<size_t> v;
-	v.push_back(_wpChanger.currentWallpaper());
-	_wpChanger.removeImages(v);
+	if (_wpChanger.currentWallpaper() != invalid_index)
+	{
+		_wpChanger.removeImages(std::vector<size_t>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
+	}
 }
 
 // Deletes current wallpaper from disk
-void MainWindow::deleteCurrentWp ()
+void MainWindow::deleteCurrentWp()
 {
-	if (_wpChanger.currentWallpaper() != size_t_max)
+	if (_wpChanger.currentWallpaper() != invalid_index)
 	{
-		std::vector<size_t> v;
-		v.push_back(_wpChanger.currentWallpaper());
-		_wpChanger.deleteImagesFromDisk(v);
+		_wpChanger.deleteImagesFromDisk(std::vector<size_t>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
 	}
 }
 
@@ -372,7 +379,7 @@ void MainWindow::onAddImagesTriggered()
 void MainWindow::onImgSelected(QTreeWidgetItem* current, QTreeWidgetItem* /*prev*/)
 {
 	if (current)
-		_currentlySelectedImageIndex = current->data(0, Qt::UserRole).toUInt();
+		_currentlySelectedImageIndex = _wpChanger.indexByID(current->data(0, IdRole).toUInt());
 	else
 		return;
 
@@ -393,7 +400,14 @@ void MainWindow::dropEvent(QDropEvent * de)
 	{
 		const QString fileName = mimeData->urls().at(0).path().remove(0, 1);
 		if (fileName.endsWith(".wil")) // It's a wallaper list
-			_wpChanger.loadList(fileName);
+		{
+			if (_wpChanger.loadList(fileName))
+			{
+				_currentListFileName = fileName;
+				CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
+			}
+		}
+
 	}
 	else
 	{
@@ -422,8 +436,8 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 
 void MainWindow::onWPDblClick( QModelIndex )
 {
-	QTreeWidgetItem* item = ui->_imageList->currentItem();
-	size_t idx = item->data(0, Qt::UserRole).toUInt();
+	const QTreeWidgetItem* item = ui->_imageList->currentItem();
+	const size_t idx = _wpChanger.indexByID(item->data(0, IdRole).toUInt());
 	if ( !_wpChanger.setWallpaper(idx) )
 	{
 		setStatusBarMessage("Failed to set selected picture as a wallpaper");
@@ -439,7 +453,7 @@ void MainWindow::displayModeChanged (int mode)
 	const int numSelected = selected.size();
 	for (int i = 0; i < numSelected; ++i)
 	{
-		const size_t itemIdx = (size_t)selected[i]->data(0, Qt::UserRole).toUInt();
+		const size_t itemIdx = _wpChanger.indexByID((size_t)selected[i]->data(0, IdRole).toUInt());
 		_wpChanger.image(itemIdx).setStretchMode(WPOPTIONS(mode));
 	}
 	_wpChanger.listChanged();
@@ -472,12 +486,12 @@ void MainWindow::showImageListContextMenu(const QPoint& pos)
 	else if (selectedItem == view)
 	{
 		if (ui->_imageList->currentItem())
-			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image((size_t)ui->_imageList->currentItem()->data(MarkerColumn, Qt::UserRole).toUInt()).imageFilePath()));
+			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID((size_t)ui->_imageList->currentItem()->data(0, Qt::UserRole).toUInt())).imageFilePath()));
 	}
 	else if (selectedItem == openFolder)
 	{
 		if (ui->_imageList->currentItem())
-			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image((size_t)ui->_imageList->currentItem()->data(MarkerColumn, Qt::UserRole).toUInt()).imageFileFolder()));
+			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID((size_t)ui->_imageList->currentItem()->data(0, Qt::UserRole).toUInt())).imageFileFolder()));
 	}
 	else if (selectedItem)
 	{
@@ -552,7 +566,6 @@ void MainWindow::loadImageList()
 			_currentListFileName = filename;
 			_bListSaved = true;
 			_previousListSize = _wpChanger.numImages();
-			CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
 		}
 	}
 }
@@ -585,7 +598,7 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 	else if (reason == QSystemTrayIcon::Context)
 	{
 		QMenu menu;
-		if (_wpChanger.currentWallpaper() != size_t_max)
+		if (_wpChanger.currentWallpaper() != invalid_index)
 		{
 			menu.addAction(_wpChanger.image(_wpChanger.currentWallpaper()).imageFileName());
 			menu.addSeparator();
@@ -632,7 +645,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 void MainWindow::selectImage(size_t index)
 {
 	for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
-		if (ui->_imageList->topLevelItem(i)->data(0, Qt::UserRole).toUInt() == index)
+		if (_wpChanger.indexByID(ui->_imageList->topLevelItem(i)->data(0, IdRole).toUInt()) == index)
 		{
 			ui->_imageList->topLevelItem(i)->setSelected(true);
 		}
@@ -643,13 +656,13 @@ void MainWindow::removeSelectedImages()
 	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
 	const int numSelected = selected.size();
 
-	std::vector<size_t> indexesToRemove;
+	std::vector<size_t> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		indexesToRemove.push_back(selected[i]->data(0, Qt::UserRole).toUInt());
+		idsToRemove.push_back(selected[i]->data(0, IdRole).toUInt());
 	}
 
-	_wpChanger.removeImages(indexesToRemove);
+	_wpChanger.removeImages(idsToRemove);
 }
 
 //Delete selected images from disk (and from the list if successful)
@@ -658,13 +671,13 @@ void MainWindow::deleteSelectedImagesFromDisk()
 	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
 	const int numSelected = selected.size();
 
-	std::vector<size_t> indexesToRemove;
+	std::vector<size_t> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		indexesToRemove.push_back(selected[i]->data(0, Qt::UserRole).toUInt());
+		idsToRemove.push_back(selected[i]->data(0, IdRole).toUInt());
 	}
 
-	 _wpChanger.deleteImagesFromDisk(indexesToRemove);
+	 _wpChanger.deleteImagesFromDisk(idsToRemove);
 }
 
 void MainWindow::imageListChanged(size_t /*index*/)
@@ -681,7 +694,7 @@ void MainWindow::wallpaperChanged(size_t index)
 		if (!item)
 			continue;
 
-		if (index < size_t_max && _wpChanger.image(index).id() == (size_t)item->data(0, IdRole).toUInt())
+		if (index < invalid_index && _wpChanger.image(index).id() == (size_t)item->data(0, IdRole).toUInt())
 		{
 			item->setCurrent();
 		}

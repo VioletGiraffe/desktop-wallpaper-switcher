@@ -4,6 +4,7 @@
 #include "imagelist.h"
 #include "signals/signal.h"
 
+#include <map>
 #include <QString>
 #include <QTime>
 #include <QTimer>
@@ -19,6 +20,11 @@ public:
 	static WallpaperChanger& instance ();
 
 // Wallpapers
+	size_t indexByID(size_t id) const;
+	size_t idByIndex(size_t index) const;
+
+	void setCurrentWpIndex(size_t index);
+
 	// Adds the file to image list
 	bool addImage(const QString& filename, ImgParams params = ImgParams());
 	// Returns QImage by it's index in the list
@@ -27,9 +33,9 @@ public:
 	const Image &image(size_t idx) const;
 	// Sets the image as a wallpaper
 	bool setWallpaper(size_t idx, bool addToHistory = true);
-	// Delete image from disk
+	// Delete images from disk by IDs
 	void deleteImagesFromDisk(const std::vector<size_t /*indexes*/>& batch);
-	// Remove batch of images from the list
+	// Remove batch of images from the list by their IDs
 	void removeImages(const std::vector<size_t /*indexes*/>& batch);
 	// Remove non-existent entries from list
 	void removeNonexistentEntries();
@@ -62,7 +68,7 @@ public:
 
 // Notifications
 	// Signal that image list has changed
-	void listChanged(size_t index = size_t_max);
+	void listChanged(size_t index = invalid_index);
 
 public /*signals*/:
 	void enableListUpdateCallbacks (bool enable = true);
@@ -86,6 +92,7 @@ private:
 	ImageList    _imageList;
 	size_t       _currentWPIdx;
 	size_t       _currentWPIdxInNavigationList;
+	std::map<size_t /*id*/, size_t /*index*/> _indexById;
 
 // Time
 	// List of previously active wallpapers for back/forth navigation

@@ -7,7 +7,7 @@
 #include <vector>
 #include <limits>
 
-const size_t size_t_max = std::numeric_limits<size_t>().max();
+const size_t invalid_index = std::numeric_limits<size_t>().max();
 
 class ImageList
 {

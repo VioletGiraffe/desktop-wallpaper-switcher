@@ -35,14 +35,14 @@ void ImageList::removeImages(const std::vector<size_t> &indexes)
 	_list = newList;
 
 	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(size_t_max);
+		_signalListChanged.invoke(invalid_index);
 }
 
 void ImageList::clear()
 {
 	_list.clear();
 	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(size_t_max);
+		_signalListChanged.invoke(invalid_index);
 }
 
 bool ImageList::empty() const
@@ -105,7 +105,7 @@ bool ImageList::loadList( const QString& filename )
 		file.read(path, pathLength);
 	}
 
-	_signalListChanged.invoke(size_t_max);
+	_signalListChanged.invoke(invalid_index);
 	return true;
 }
 
@@ -127,12 +127,16 @@ bool ImageList::deleteFilesFromDisk(const std::vector<size_t> &indexes)
 				qDebug() << "failed to remove: " << file.errorString();
 				newList.push_back(_list[i]);
 			}
+			else
+			{
+				qDebug() << "Deleted: " << file.fileName();
+			}
 		}
 	}
 	_list = newList;
 
 	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(size_t_max);
+		_signalListChanged.invoke(invalid_index);
 
 	return true;
 }

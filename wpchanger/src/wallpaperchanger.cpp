@@ -22,7 +22,7 @@
 #define TIMER_INTERVAL 1000
 
 WallpaperChanger::WallpaperChanger():
-	_currentWPIdx (size_t_max),
+	_currentWPIdx (invalid_index),
 	_currentWPIdxInNavigationList(0)
 {
 	_qTimer.setInterval(TIMER_INTERVAL);
@@ -34,15 +34,41 @@ WallpaperChanger::WallpaperChanger():
 	_signalTimeToNextSwitch.invoke(interval() - 1);
 
 	_slotListChanged = _imageList._signalListChanged.connect(this, &WallpaperChanger::listChanged);
-
-	if (CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool())
-		startSwitching();
 }
 
-WallpaperChanger&  WallpaperChanger::instance()
+WallpaperChanger& WallpaperChanger::instance()
 {
 	static WallpaperChanger inst;
 	return inst;
+}
+
+
+size_t WallpaperChanger::indexByID(size_t id) const
+{
+	if (_indexById.count(id) > 0)
+		return _indexById.at(id);
+	else 
+	{
+		assert(_indexById.count(id) > 0);
+		return invalid_index;
+	}
+}
+
+size_t WallpaperChanger::idByIndex(size_t index) const
+{
+	for (auto it = _indexById.begin(); it != _indexById.end(); ++it)
+	{
+		if (it->second == index)
+			return it->first;
+	}
+
+	return invalid_index;
+	
+}
+
+void WallpaperChanger::setCurrentWpIndex(size_t index)
+{
+	setWallpaper(index);
 }
 
 bool WallpaperChanger::addImage(const QString &filename, ImgParams params /* = ImgParams() */)
@@ -77,28 +103,46 @@ bool WallpaperChanger::setWallpaper( size_t idx, bool addToHistory /*= true*/ )
 	if ( succ && addToHistory )
 		_previousWallPapers.push_back(idx);
 
-	if (!succ)
+	if (succ)
+		_currentWPIdx = idx;
+	else
 		qDebug() << "Failed to set wallpaper " << normalizeFileName(image(idx).imageFilePath());
 	return succ;
 }
 
-// Delete image from disk
-void WallpaperChanger::deleteImagesFromDisk(const std::vector<size_t> &batch)
+// Delete images from disk by IDs
+void WallpaperChanger::deleteImagesFromDisk(const std::vector<size_t> &batchIDs)
 {
-	adjustHistoryForObsoleteImages(batch);
-	_imageList.deleteFilesFromDisk(batch);
-	if (std::find(batch.begin(), batch.end(), _currentWPIdx) != batch.end())
+	std::vector<size_t> batchIndexes;
+	for (auto id = batchIDs.begin(); id != batchIDs.end(); ++id)
 	{
-		_currentWPIdx = size_t_max;
-		_signalWallpaperChanged.invoke(size_t_max);
+		auto index = _indexById.find(*id);
+		if (index != _indexById.end())
+			batchIndexes.push_back(index->second);
+	}
+	
+	adjustHistoryForObsoleteImages(batchIndexes);
+	_imageList.deleteFilesFromDisk(batchIndexes);
+	if (std::find(batchIndexes.begin(), batchIndexes.end(), _currentWPIdx) != batchIndexes.end())
+	{
+		_currentWPIdx = invalid_index;
+		_signalWallpaperChanged.invoke(invalid_index);
 	}
 }
 
-// Remove batch of images from the list
-void WallpaperChanger::removeImages(const std::vector<size_t> &batch)
+// Remove batch of images from the list by their IDs
+void WallpaperChanger::removeImages(const std::vector<size_t> &batchIDs)
 {
-	adjustHistoryForObsoleteImages(batch);
-	_imageList.removeImages(batch);
+	std::vector<size_t> batchIndexes;
+	for (auto id = batchIDs.begin(); id != batchIDs.end(); ++id)
+	{
+		auto index = _indexById.find(*id);
+		if (index != _indexById.end())
+			batchIndexes.push_back(index->second);
+	}
+
+	adjustHistoryForObsoleteImages(batchIndexes);
+	_imageList.removeImages(batchIndexes);
 }
 
 // Remove non-existent entries from list
@@ -130,6 +174,9 @@ bool WallpaperChanger::saveList(const QString &filename) const
 
 bool WallpaperChanger::loadList(const QString &filename)
 {
+	if (_qTimer.isActive())
+		startSwitching();
+
 	return _imageList.loadList(filename);
 }
 
@@ -160,7 +207,13 @@ size_t WallpaperChanger::currentWallpaper() const
 // Signal that image list has changed
 void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 {
-	_signalListChanged.invoke(size_t_max);
+	_indexById.clear();
+	for (size_t index = 0; index < _imageList.size(); ++index)
+	{
+		_indexById[_imageList[index].id()] = index;
+	}
+	
+	_signalListChanged.invoke(invalid_index);
 }
 
 
@@ -192,7 +245,7 @@ bool WallpaperChanger::setWallpaperImpl(size_t idx)
 		QSettings settings("HKEY_CURRENT_USER\\Control Panel\\Desktop", QSettings::NativeFormat);
 		if (settings.value("TileWallpaper", "0") != "0")
 		{
-			Sleep(300);
+			Sleep(100);
 			settings.setValue("TileWallpaper", "0");
 		}
 		settings.setValue("WallpaperStyle", image(idx).stretchMode() == CENTERED ? "0" : "6");

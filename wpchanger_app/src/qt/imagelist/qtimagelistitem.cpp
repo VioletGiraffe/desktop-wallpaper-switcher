@@ -11,7 +11,8 @@ QtImageListItem::QtImageListItem(const Image& img, size_t index, bool currentlyS
 {
 	if (currentlySetWallpaper)
 		setText(MarkerColumn, QString::fromUtf16((const ushort*)currentWpMarkSymbol));
-	setData(MarkerColumn, Qt::UserRole, index); // This wallpaper's index
+
+	setData(0, IdRole, (qulonglong)img.id()); // This WP's ID
 
 	setText(FileNameColumn, img.imageFileName());
 
@@ -54,9 +55,7 @@ QtImageListItem::QtImageListItem(const Image& img, size_t index, bool currentlyS
 		break;
 	}
 
-	setText(ImageFormatColumn, format);
-
-	setData(0, IdRole, (qulonglong)img.id());
+	setText(ImageFormatColumn, format);	
 }
 
 bool QtImageListItem::operator<( const QTreeWidgetItem &other ) const
