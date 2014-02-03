@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>816</width>
+    <height>526</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Wallpaper Changer</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QWidget" name="layoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="ImageThumbnailGroupBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Image thumbnail</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="ImageThumbnailWidget" name="ImageThumbWidget" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>180</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="ImageInfolGroupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Image Info</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="0">
+              <widget class="QLabel" name="ImageDimensionsLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Image Dimensions:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="_imageDimensionsIndicatorLabel">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="ImageSizeLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Image Size:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="_imageSizeIndicatorLabel">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="ViewModeLabel">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>wallpaper Mode:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QComboBox" name="_wpModeComboBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Center</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Stretch</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>File Path:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="_filePathIndicator">
+               <property name="sizeIncrement">
+                <size>
+                 <width>1</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QTreeWidget" name="_imageList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::CustomContextMenu</enum>
+       </property>
+       <property name="acceptDrops">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DropOnly</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>false</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="itemsExpandable">
+        <bool>false</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <property name="expandsOnDoubleClick">
+        <bool>false</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="headerCascadingSectionResizes">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerDefaultSectionSize">
+        <number>100</number>
+       </attribute>
+       <attribute name="headerHighlightSections">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerShowSortIndicator" stdset="0">
+        <bool>true</bool>
+       </attribute>
+       <attribute name="headerStretchLastSection">
+        <bool>true</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string>&gt;</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>bpp</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Dimensions</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Physical size</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Mode</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Format</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Folder</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>816</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionAdd_Images"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_Image_List"/>
+    <addaction name="actionSave_Image_List"/>
+    <addaction name="actionSave_Image_List_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="action_About"/>
+   </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>&amp;Options</string>
+    </property>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionBrowser"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuList">
+    <property name="title">
+     <string>&amp;List</string>
+    </property>
+    <addaction name="actionRemove_Non_Existent_Entries"/>
+    <addaction name="actionFind_duplicate_list_entries"/>
+    <addaction name="actionFind_duplicate_files_on_disk"/>
+    <addaction name="separator"/>
+    <addaction name="actionNext_wallpaper"/>
+    <addaction name="actionPrevious_Wallpaper"/>
+    <addaction name="actionStart_switching"/>
+    <addaction name="actionStop_Switching"/>
+    <addaction name="separator"/>
+    <addaction name="actionRemove_Current_Image_from_List"/>
+    <addaction name="actionDelete_Current_Wallpaper_From_Disk"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuList"/>
+   <addaction name="menuOptions"/>
+   <addaction name="menu"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="_toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+   <addaction name="actionPrevious_Wallpaper"/>
+   <addaction name="actionNext_wallpaper"/>
+   <addaction name="actionStop_Switching"/>
+   <addaction name="actionStart_switching"/>
+   <addaction name="separator"/>
+   <addaction name="actionRemove_Current_Image_from_List"/>
+   <addaction name="actionDelete_Current_Wallpaper_From_Disk"/>
+  </widget>
+  <action name="actionLoad_Image_List">
+   <property name="text">
+    <string>&amp;Load Image List</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionSave_Image_List">
+   <property name="text">
+    <string>&amp;Save Image List</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>&amp;Settings</string>
+   </property>
+  </action>
+  <action name="actionAdd_Images">
+   <property name="text">
+    <string>&amp;Add Image(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionSave_Image_List_As">
+   <property name="text">
+    <string>Save &amp;Image List As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionBrowser">
+   <property name="text">
+    <string>&amp;Browser</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="actionFind_duplicates">
+   <property name="text">
+    <string>Find duplicates</string>
+   </property>
+  </action>
+  <action name="actionFind_duplicate_list_entries">
+   <property name="text">
+    <string>&amp;Find Duplicate &amp;List Entries</string>
+   </property>
+  </action>
+  <action name="actionFind_duplicate_files_on_disk">
+   <property name="text">
+    <string>Find &amp;Duplicate &amp;Files on Disk</string>
+   </property>
+  </action>
+  <action name="actionRemove_Current_Image_from_List">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/remove.png</normaloff>:/icons/resources/remove.png</iconset>
+   </property>
+   <property name="text">
+    <string>R&amp;emove Current Wallpaper From List</string>
+   </property>
+  </action>
+  <action name="actionDelete_Current_Wallpaper_From_Disk">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/delete.png</normaloff>:/icons/resources/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete &amp;Current Wallpaper From Disk</string>
+   </property>
+  </action>
+  <action name="actionNext_wallpaper">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/next.png</normaloff>:/icons/resources/next.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Next Wallpaper</string>
+   </property>
+  </action>
+  <action name="actionPrevious_Wallpaper">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/previous.png</normaloff>:/icons/resources/previous.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Previous Wallpaper</string>
+   </property>
+  </action>
+  <action name="actionStart_switching">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/start.png</normaloff>:/icons/resources/start.png</iconset>
+   </property>
+   <property name="text">
+    <string>St&amp;art Switching</string>
+   </property>
+  </action>
+  <action name="actionStop_Switching">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/stop.png</normaloff>:/icons/resources/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>St&amp;op Switching</string>
+   </property>
+  </action>
+  <action name="actionRemove_Non_Existent_Entries">
+   <property name="text">
+    <string>&amp;Remove Non-Existent Entries</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ImageThumbnailWidget</class>
+   <extends>QWidget</extends>
+   <header>thumbnailwidget/imagethumbnailwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
