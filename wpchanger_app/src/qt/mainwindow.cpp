@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionRemove_Non_Existent_Entries, SIGNAL(triggered()), SLOT(removeNonExistingEntries()));
 	connect(ui->actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-	setAcceptDrops (true);
+	setAcceptDrops(true);
 
 	_slotImageListChanged = _wpChanger._signalListChanged.connect(this, &MainWindow::imageListChanged);
 	_slotWallpaperChanged = _wpChanger._signalWallpaperChanged.connect(this, &MainWindow::wallpaperChanged);
@@ -388,12 +388,22 @@ void MainWindow::dropEvent(QDropEvent * de)
 	CTime start;
 	const QMimeData * mimeData = de->mimeData();
 	_wpChanger.enableListUpdateCallbacks(false);
-	//For every dropped file
-	for (int urlIndex = 0; urlIndex < mimeData->urls().size(); ++urlIndex)
+
+	if (mimeData->urls().size() == 1)
 	{
-		//Remove the heading '/
-		const QString filename = mimeData->urls().at(urlIndex).path().remove(0, 1);
-		addImagesFromDirecoryRecursively(filename);
+		const QString fileName = mimeData->urls().at(0).path().remove(0, 1);
+		if (fileName.endsWith(".wil")) // It's a wallaper list
+			_wpChanger.loadList(fileName);
+	}
+	else
+	{
+		//For every dropped file
+		for (int urlIndex = 0; urlIndex < mimeData->urls().size(); ++urlIndex)
+		{
+			//Remove the heading '/
+			const QString filename = mimeData->urls().at(urlIndex).path().remove(0, 1);
+			addImagesFromDirecoryRecursively(filename);
+		}
 	}
 
 	_wpChanger.enableListUpdateCallbacks(true);
@@ -575,6 +585,11 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 	else if (reason == QSystemTrayIcon::Context)
 	{
 		QMenu menu;
+		if (_wpChanger.currentWallpaper() != size_t_max)
+		{
+			menu.addAction(_wpChanger.image(_wpChanger.currentWallpaper()).imageFileName());
+			menu.addSeparator();
+		}
 		menu.addAction(ui->actionNext_wallpaper);
 		menu.addAction(ui->actionPrevious_Wallpaper);
 		menu.addSeparator();
