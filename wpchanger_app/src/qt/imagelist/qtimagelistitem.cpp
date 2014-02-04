@@ -7,7 +7,7 @@ static const unsigned char currentWpMarkSymbol [] = {
 	0x25
 };
 
-QtImageListItem::QtImageListItem(const Image& img, size_t index, bool currentlySetWallpaper/* = false*/)
+QtImageListItem::QtImageListItem(const Image& img, bool currentlySetWallpaper/* = false*/)
 {
 	if (currentlySetWallpaper)
 		setText(MarkerColumn, QString::fromUtf16((const ushort*)currentWpMarkSymbol));
@@ -55,7 +55,7 @@ QtImageListItem::QtImageListItem(const Image& img, size_t index, bool currentlyS
 		break;
 	}
 
-	setText(ImageFormatColumn, format);	
+	setText(ImageFormatColumn, format);
 }
 
 bool QtImageListItem::operator<( const QTreeWidgetItem &other ) const

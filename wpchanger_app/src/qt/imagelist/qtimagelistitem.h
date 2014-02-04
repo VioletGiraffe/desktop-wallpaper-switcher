@@ -21,7 +21,7 @@ enum {
 class QtImageListItem : public QTreeWidgetItem
 {
 public:
-	QtImageListItem(const Image& img, size_t index, bool currentlySetWallpaper = false);
+	QtImageListItem(const Image& img, bool currentlySetWallpaper = false);
 
 	virtual bool operator<(const QTreeWidgetItem &other) const;
 

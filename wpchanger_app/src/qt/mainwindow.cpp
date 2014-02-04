@@ -144,7 +144,7 @@ void MainWindow::updateImageList()
 		const auto imageListItem = _imageListWidgetItems.find(_wpChanger.image(i).id());
 		if (imageListItem == _imageListWidgetItems.end()) // This image is not yet in the widget, adding
 		{
-			QtImageListItem * item =  new QtImageListItem(_wpChanger.image(i), i, _wpChanger.currentWallpaper() == i);
+			QtImageListItem * item =  new QtImageListItem(_wpChanger.image(i), _wpChanger.currentWallpaper() == i);
 			if (!_wpChanger.imageExists(i))
 			{
 				for (int i = 0; i < ui->_imageList->columnCount(); ++i)
