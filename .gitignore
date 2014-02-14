@@ -54,6 +54,12 @@ build/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# Project files
+*.sln
+*.vcproj
+*.vcxproj
+*.vc*proj.filters
+
 *_i.c
 *_p.c
 *.ilk

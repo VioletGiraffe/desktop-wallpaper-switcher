@@ -1,6 +1,6 @@
 DESTDIR  = ../bin
 TEMPLATE = app
-TARGET   = WallpaperChanger
+TARGET   = WallpaperSwitcher
 
 OBJECTS_DIR = ../build
 MOC_DIR     = ../build
