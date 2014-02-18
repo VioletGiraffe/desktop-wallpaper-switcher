@@ -3,10 +3,10 @@ TEMPLATE = lib
 DESTDIR = ../bin
 CONFIG += staticlib
 
-OBJECTS_DIR = ../build
-MOC_DIR = ../build
-UI_DIR = ../build
-RCC_DIR = ../build
+OBJECTS_DIR = ../build/utility
+MOC_DIR = ../build/utility
+UI_DIR = ../build/utility
+RCC_DIR = ../build/utility
 
 #DEFINES += UTILITY_LIB
 
