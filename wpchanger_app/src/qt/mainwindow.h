@@ -108,7 +108,7 @@ private:
 	void displayImageInfo (size_t imageIndex);
 
 	//Updates the contents of image list control according to _wpChanger::_imageList
-	void updateImageList();
+	void updateImageList(bool totalUpdate);
 
 	void addImagesFromDirecoryRecursively(const QString& dir);
 
@@ -141,7 +141,6 @@ private:
 	QLabel                        _statusBarTimeToSwitchLabel;
 	QLabel                        _statusBarNumImages;
 
-	size_t                        _currentlySelectedImageIndex;
 	size_t                        _timeToSwitch;
 
 	Slot                          _slotImageListChanged;

@@ -36,18 +36,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	_aboutDlg(new AboutDialog(this)),
-	_currentlySelectedImageIndex (0),
 	_timeToSwitch(0),
 	_trayIcon(QApplication::style()->standardIcon(QStyle::SP_MediaStop), this),
-	_wpChanger (WallpaperChanger::instance()),
-	_bListSaved (true),
+	_wpChanger(WallpaperChanger::instance()),
+	_bListSaved(true),
 	_previousListSize(0)
 {
 	ui->setupUi(this);
 
 	initToolbar();
-
-	ui->_filePathIndicator->setVisible(false);
 
 	_trayIcon.setParent(this);
 	_trayIcon.show();
@@ -124,7 +121,7 @@ void MainWindow::setStatusBarMessage( const QString& msg )
 }
 
 //Updates the contents of image list control according to _wpChanger::_imageList
-void MainWindow::updateImageList()
+void MainWindow::updateImageList(bool totalUpdate)
 {
 	disconnect(ui->_imageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(onImgSelected(QTreeWidgetItem*,QTreeWidgetItem*)));
 	CTime start;
@@ -136,6 +133,16 @@ void MainWindow::updateImageList()
 		if (_bListSaved && _previousListSize != _wpChanger.numImages())
 			_bListSaved = false;
 		_previousListSize = _wpChanger.numImages();
+	}
+
+	if (totalUpdate)
+	{
+		// Cleaning up the whole list of QTreeWidget items
+		for (auto it = _imageListWidgetItems.begin(); it != _imageListWidgetItems.end(); ++it)
+		{
+			delete it->second; // This both deletes the item and removes it from the widget: http://qt-project.org/doc/qt-4.8/qtreewidgetitem.html#dtor.QTreeWidgetItem
+		}
+		_imageListWidgetItems.clear();
 	}
 
 	decltype(_imageListWidgetItems) newImageListWidgetItems;
@@ -378,15 +385,14 @@ void MainWindow::onAddImagesTriggered()
 
 void MainWindow::onImgSelected(QTreeWidgetItem* current, QTreeWidgetItem* /*prev*/)
 {
-	if (current)
-		_currentlySelectedImageIndex = _wpChanger.indexByID(current->data(0, IdRole).toUInt());
-	else
+	if (!current)
 		return;
 
-	if (_currentlySelectedImageIndex < _wpChanger.numImages())
+	const size_t currentlySelectedItemIndex = (size_t)_wpChanger.indexByID(current->data(0, IdRole).toUInt());
+	if (currentlySelectedItemIndex < _wpChanger.numImages())
 	{
-		ui->ImageThumbWidget->displayImage(_wpChanger.image(_currentlySelectedImageIndex));
-		displayImageInfo(_currentlySelectedImageIndex);
+		ui->ImageThumbWidget->displayImage(_wpChanger.image(currentlySelectedItemIndex));
+		displayImageInfo(currentlySelectedItemIndex);
 	}
 }
 
@@ -421,7 +427,7 @@ void MainWindow::dropEvent(QDropEvent * de)
 	}
 
 	_wpChanger.enableListUpdateCallbacks(true);
-	updateImageList();
+	updateImageList(false);
 
 	qDebug() << "Dropping " << mimeData->urls().size() << "Items took " << (CTime() - start) / 1000.0f <<"secs";
 }
@@ -449,6 +455,7 @@ void MainWindow::displayModeChanged (int mode)
 {
 	assert (mode >= 0 && mode <= SYSTEM_DEFAULT);
 
+	_bListSaved = false;
 	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
 	const int numSelected = selected.size();
 	for (int i = 0; i < numSelected; ++i)
@@ -456,7 +463,8 @@ void MainWindow::displayModeChanged (int mode)
 		const size_t itemIdx = _wpChanger.indexByID((size_t)selected[i]->data(0, IdRole).toUInt());
 		_wpChanger.image(itemIdx).setStretchMode(WPOPTIONS(mode));
 	}
-	_wpChanger.listChanged();
+
+	updateImageList(true);
 }
 
 // Image browser requested
@@ -507,7 +515,7 @@ void MainWindow::openSettings()
 void MainWindow::displayImageInfo (size_t imageIndex)
 {
 	const Image& img = _wpChanger.image(imageIndex);
-	ui->_filePathIndicator->setText(img.imageFilePath());
+	ui->_filePathIndicator->setText(img.imageFileFolder());
 	ui->_imageDimensionsIndicatorLabel->setText(QString("%1x%2").arg(img.params()._width).arg(img.params()._height));
 	ui->_imageSizeIndicatorLabel->setText(QString("%1 KB").arg(img.params()._fileSize / 1024));
 	ui->_wpModeComboBox->setCurrentIndex(img.params()._wpDisplayMode);
@@ -682,7 +690,7 @@ void MainWindow::deleteSelectedImagesFromDisk()
 
 void MainWindow::imageListChanged(size_t /*index*/)
 {
-	updateImageList();
+	updateImageList(false);
 }
 
 void MainWindow::wallpaperChanged(size_t index)
