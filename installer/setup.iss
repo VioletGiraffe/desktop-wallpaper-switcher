@@ -65,7 +65,7 @@ Source: license.rtf; DestDir: {app};
 [Icons]
 Name: {group}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe;
 Name: {group}\{cm:UninstallProgram,Wallpaper Switcher}; Filename: {uninstallexe}
-Name: {commonstartup}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe; Tasks: startup
+Name: {userstartup}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe; Tasks: startup
 
 Name: {userdesktop}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe; Tasks: desktopicon;
 
