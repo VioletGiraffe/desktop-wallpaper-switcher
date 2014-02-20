@@ -96,6 +96,7 @@ private:
 	size_t       _currentWPIdx;
 	size_t       _currentWPIdxInNavigationList;
 	std::map<size_t /*id*/, size_t /*index*/> _indexById;
+	bool               _bUpdatesEnabled;
 
 // Time
 	// List of previously active wallpapers for back/forth navigation

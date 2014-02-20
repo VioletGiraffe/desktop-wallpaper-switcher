@@ -22,8 +22,6 @@ public:
 	Image& operator[] (size_t index);
 	const Image& operator[] (size_t index) const;
 
-	void enableUpdates (bool enable = true);
-
 	//Deletes corresponding files from disk and removes from the list if deletion successful
 	bool deleteFilesFromDisk (const std::vector<size_t>& indexes);
 
@@ -35,7 +33,6 @@ public:
 
 private:
 	std::vector<Image> _list;
-	bool               _bUpdatesEnabled;
 };
 
 #endif // IMAGELIST_H

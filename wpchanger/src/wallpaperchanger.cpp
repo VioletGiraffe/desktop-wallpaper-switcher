@@ -23,7 +23,8 @@
 
 WallpaperChanger::WallpaperChanger():
 	_currentWPIdx (invalid_index),
-	_currentWPIdxInNavigationList(0)
+	_currentWPIdxInNavigationList(0),
+	_bUpdatesEnabled(true)
 {
 	_qTimer.setInterval(TIMER_INTERVAL);
 	_qTimer.setSingleShot(false);
@@ -69,7 +70,10 @@ size_t WallpaperChanger::idByIndex(size_t index) const
 
 void WallpaperChanger::setCurrentWpIndex(size_t index)
 {
-	setWallpaper(index);
+	if (index < numImages())
+		setWallpaper(index);
+	else
+		_currentWPIdx = invalid_index;
 }
 
 bool WallpaperChanger::addImage(const QString &filename, ImgParams params /* = ImgParams() */)
@@ -215,13 +219,23 @@ void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 		_indexById[_imageList[index].id()] = index;
 	}
 	
-	_signalListChanged.invoke(invalid_index);
+	if (_bUpdatesEnabled)
+		_signalListChanged.invoke(invalid_index);
 }
 
+// Signal that image list has been cleared
+void WallpaperChanger::listCleared()
+{
+	_indexById.clear();
+	_currentWPIdx = invalid_index;
+
+	if (_bUpdatesEnabled)
+		_signalListCleared.invoke();
+}
 
 void WallpaperChanger::enableListUpdateCallbacks(bool enable /* = true*/)
 {
-	_imageList.enableUpdates(enable);
+	_bUpdatesEnabled = enable;
 }
 
 void WallpaperChanger::onTimeout()
@@ -359,11 +373,4 @@ void WallpaperChanger::previousWallpaper  ()
 		_currentWPIdx = _previousWallPapers[--_currentWPIdxInNavigationList];
 		setWallpaper(_currentWPIdx, false);
 	}
-}
-
-// Signal that image list has been cleared
-void WallpaperChanger::listCleared()
-{
-	_currentWPIdx = invalid_index;
-	_signalListCleared.invoke();
 }

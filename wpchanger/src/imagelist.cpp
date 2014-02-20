@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 
-ImageList::ImageList() : _bUpdatesEnabled (true)
+ImageList::ImageList()
 {
 }
 
@@ -19,8 +19,7 @@ size_t ImageList::size() const
 void ImageList::addImage(const Image &image)
 {
 	_list.push_back(image);
-	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(size() - 1);
+	_signalListChanged.invoke(size() - 1);
 }
 
 void ImageList::removeImages(const std::vector<size_t> &indexes)
@@ -34,14 +33,12 @@ void ImageList::removeImages(const std::vector<size_t> &indexes)
 	}
 	_list = newList;
 
-	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(invalid_index);
+	_signalListChanged.invoke(invalid_index);
 }
 
 void ImageList::clear()
 {
-	if (_bUpdatesEnabled)
-		_signalListCleared.invoke();
+	_signalListCleared.invoke();
 	_list.clear();
 }
 
@@ -58,11 +55,6 @@ Image &ImageList::operator [](size_t index)
 const Image &ImageList::operator [](size_t index) const
 {
 	return _list[index];
-}
-
-void ImageList::enableUpdates(bool enable)
-{
-	_bUpdatesEnabled = enable;
 }
 
 bool ImageList::saveList( const QString& filename ) const
@@ -138,8 +130,7 @@ bool ImageList::deleteFilesFromDisk(const std::vector<size_t> &indexes)
 	}
 	_list = newList;
 
-	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(invalid_index);
+	_signalListChanged.invoke(invalid_index);
 
 	return true;
 }

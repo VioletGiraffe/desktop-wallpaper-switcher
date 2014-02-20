@@ -10,7 +10,7 @@ enum IMGFORMAT {JPG, BMP, PNG, GIF, TIFF, XBM, XPM, UNKN};
 enum WPOPTIONS {CENTERED, STRETCHED, SYSTEM_DEFAULT};
 struct ImgParams
 {
-	ImgParams () : _width (0), _height(0), _fileSize(0), _fmt(UNKN), _wpDisplayMode(CENTERED) {}
+	ImgParams () : _width (0), _height(0), _fileSize(0), _fmt(UNKN), _wpDisplayMode(STRETCHED) {}
 	bool operator== (const ImgParams& other) const { return _width == other._width && _height == other._height && _fileSize == other._fileSize && _fmt == other._fmt && _wpDisplayMode == other._wpDisplayMode; }
 	bool operator!= (const ImgParams& other) const { return !operator==(other); }
 	int _width, _height;

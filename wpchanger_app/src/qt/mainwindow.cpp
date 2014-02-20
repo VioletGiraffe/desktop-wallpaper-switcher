@@ -414,7 +414,6 @@ void MainWindow::dropEvent(QDropEvent * de)
 				CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
 			}
 		}
-
 	}
 	else
 	{
