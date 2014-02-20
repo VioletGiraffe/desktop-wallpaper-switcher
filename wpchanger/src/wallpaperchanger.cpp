@@ -34,6 +34,7 @@ WallpaperChanger::WallpaperChanger():
 	_signalTimeToNextSwitch.invoke(interval() - 1);
 
 	_slotListChanged = _imageList._signalListChanged.connect(this, &WallpaperChanger::listChanged);
+	_slotListCleared = _imageList._signalListCleared.connect(this, &WallpaperChanger::listCleared);
 }
 
 WallpaperChanger& WallpaperChanger::instance()
@@ -207,6 +208,7 @@ size_t WallpaperChanger::currentWallpaper() const
 // Signal that image list has changed
 void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 {
+	_currentWPIdx = invalid_index;
 	_indexById.clear();
 	for (size_t index = 0; index < _imageList.size(); ++index)
 	{
@@ -357,4 +359,11 @@ void WallpaperChanger::previousWallpaper  ()
 		_currentWPIdx = _previousWallPapers[--_currentWPIdxInNavigationList];
 		setWallpaper(_currentWPIdx, false);
 	}
+}
+
+// Signal that image list has been cleared
+void WallpaperChanger::listCleared()
+{
+	_currentWPIdx = invalid_index;
+	_signalListCleared.invoke();
 }

@@ -117,6 +117,8 @@ private:
 // Slots
 	// Image list was updated
 	void imageListChanged (size_t index);
+	// Image list was cleared
+	void imageListCleared();
 	// Current wallpaper changed
 	void wallpaperChanged (size_t index);
 	// Time until next switch
@@ -144,6 +146,7 @@ private:
 	size_t                        _timeToSwitch;
 
 	Slot                          _slotImageListChanged;
+	Slot                          _slotImageListCleared;
 	Slot                          _slotWallpaperChanged;
 	Slot                          _slotTimeToNextSwitchChanged;
 

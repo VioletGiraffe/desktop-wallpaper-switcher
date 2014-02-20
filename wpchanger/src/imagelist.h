@@ -30,7 +30,8 @@ public:
 	bool saveList (const QString& filename) const;
 	bool loadList (const QString& filename);
 
-	Signal<size_t /*index*/> _signalListChanged;
+	Signal0                   _signalListCleared;
+	Signal1<size_t /*index*/> _signalListChanged;
 
 private:
 	std::vector<Image> _list;

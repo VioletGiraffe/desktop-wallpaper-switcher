@@ -1,6 +1,8 @@
 #include "slot.h"
 #include "signal.h"
 
+using namespace SignalDetail;
+
 Slot::Slot () : _valid(false)
 {
 

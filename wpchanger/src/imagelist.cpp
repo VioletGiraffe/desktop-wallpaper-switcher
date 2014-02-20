@@ -40,9 +40,9 @@ void ImageList::removeImages(const std::vector<size_t> &indexes)
 
 void ImageList::clear()
 {
-	_list.clear();
 	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(invalid_index);
+		_signalListCleared.invoke();
+	_list.clear();
 }
 
 bool ImageList::empty() const
@@ -91,9 +91,12 @@ bool ImageList::loadList( const QString& filename )
 
 	clear();
 
-	char path[1000] = {0};
+	char path[3000] = {0};
 	int pathLength = 0;
 	file.read((char*)&pathLength, sizeof (pathLength));
+	if (pathLength >= sizeof(path) / sizeof(char))
+		return false; // Path is too long
+
 	file.read(path, pathLength);
 	while (!file.eof())
 	{

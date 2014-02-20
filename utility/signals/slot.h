@@ -3,7 +3,9 @@
 #include "../utility_lib.h"
 #include <memory>
 
-struct ConnectionBase;
+namespace SignalDetail {
+	struct ConnectionBase;
+}
 
 class UTILITY_EXPORT Slot
 {
@@ -13,12 +15,12 @@ public:
 
 	void destroy ();
 
-	void operator= (std::shared_ptr<ConnectionBase>& connPtr);
+	void operator= (std::shared_ptr<SignalDetail::ConnectionBase>& connPtr);
 
 private:
 	Slot (const Slot&) {}
 
 private:
-	std::shared_ptr<ConnectionBase> _connection;
+	std::shared_ptr<SignalDetail::ConnectionBase> _connection;
 	bool                            _valid;
 };

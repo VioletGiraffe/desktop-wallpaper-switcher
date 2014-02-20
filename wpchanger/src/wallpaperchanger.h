@@ -69,13 +69,16 @@ public:
 // Notifications
 	// Signal that image list has changed
 	void listChanged(size_t index = invalid_index);
+	// Signal that image list has been cleared
+	void listCleared();
 
 public /*signals*/:
 	void enableListUpdateCallbacks (bool enable = true);
-	Signal<size_t> _signalWallpaperChanged;
-	Signal<size_t> _wallpaperAdded;
-	Signal<size_t> _signalTimeToNextSwitch;
-	Signal<size_t> _signalListChanged;
+	Signal1<size_t> _signalWallpaperChanged;
+	Signal1<size_t> _wallpaperAdded;
+	Signal1<size_t> _signalTimeToNextSwitch;
+	Signal1<size_t> _signalListChanged;
+	Signal0          _signalListCleared;
 
 
 private slots:
@@ -101,6 +104,7 @@ private:
 	// Time since last switch
 	QTime               _qTime;
 	Slot                _slotListChanged;
+	Slot                _slotListCleared;
 
 private:
 	static QString normalizeFileName(const QString filename);

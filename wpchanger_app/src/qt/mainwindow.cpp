@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	setAcceptDrops(true);
 
 	_slotImageListChanged = _wpChanger._signalListChanged.connect(this, &MainWindow::imageListChanged);
+	_slotImageListCleared = _wpChanger._signalListCleared.connect(this, &MainWindow::imageListCleared);
 	_slotWallpaperChanged = _wpChanger._signalWallpaperChanged.connect(this, &MainWindow::wallpaperChanged);
 	_slotTimeToNextSwitchChanged = _wpChanger._signalTimeToNextSwitch.connect(this, &MainWindow::timeToNextSwitch);
 	timeToNextSwitch(_wpChanger.interval());
@@ -691,6 +692,12 @@ void MainWindow::deleteSelectedImagesFromDisk()
 void MainWindow::imageListChanged(size_t /*index*/)
 {
 	updateImageList(false);
+}
+
+// Image list was cleared
+void MainWindow::imageListCleared()
+{
+	updateImageList(true);
 }
 
 void MainWindow::wallpaperChanged(size_t index)
