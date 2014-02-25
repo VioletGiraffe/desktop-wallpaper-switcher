@@ -98,10 +98,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		_statusBarMsgLabel.setText("Start by dragging and dropping images");
 
-	const uint wpIndex = CSettings().value(SETTINGS_CURRENT_WALLPAPER, std::numeric_limits<uint>().max()).toUInt();
+	const size_t wpIndex = (size_t)CSettings().value(SETTINGS_CURRENT_WALLPAPER, std::numeric_limits<uint>().max()).toUInt();
 	if (wpIndex < std::numeric_limits<uint>().max())
 	{
-		_wpChanger.setCurrentWpIndex((size_t)wpIndex);
+		_wpChanger.setCurrentWpIndex(wpIndex);
 	}
 
 	_previousListSize = _wpChanger.numImages();
@@ -386,7 +386,7 @@ void MainWindow::onImgSelected(QTreeWidgetItem* current, QTreeWidgetItem* /*prev
 	if (!current)
 		return;
 
-	const size_t currentlySelectedItemIndex = (size_t)_wpChanger.indexByID(current->data(0, IdRole).toULongLong());
+	const size_t currentlySelectedItemIndex = _wpChanger.indexByID(current->data(0, IdRole).toULongLong());
 	if (currentlySelectedItemIndex < _wpChanger.numImages())
 	{
 		ui->ImageThumbWidget->displayImage(_wpChanger.image(currentlySelectedItemIndex));
