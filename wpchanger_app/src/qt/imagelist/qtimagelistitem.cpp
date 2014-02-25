@@ -2,6 +2,7 @@
 
 #include <QTreeWidgetItem>
 #include <set>
+#include <assert.h>
 
 static const unsigned char currentWpMarkSymbol [] = {
 	0xB6, // ▶
@@ -20,10 +21,10 @@ QtImageListItem::QtImageListItem(const Image& img, bool currentlySetWallpaper/* 
 	ids.insert(id);
 	names.insert(img.imageFilePath());
 
-	Q_ASSERT(names.size() == ids.size());
+	assert(names.size() <= ids.size());
 
 	setData(0, IdRole, QVariant(id)); // This WP's ID
-	Q_ASSERT(id == data(0, IdRole).toULongLong());
+	assert(id == data(0, IdRole).toULongLong());
 
 	setText(FileNameColumn, img.imageFileName());
 

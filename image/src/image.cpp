@@ -75,7 +75,7 @@ bool Image::loadFromFile( const QString& filename )
 	names.insert(_filePath);
 	ids.insert(_id);
 
-	Q_ASSERT(names.size() == ids.size());
+	Q_ASSERT(names.size() <= ids.size());
 
 	return _isValid;
 }

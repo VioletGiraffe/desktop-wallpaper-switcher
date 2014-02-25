@@ -163,8 +163,6 @@ void MainWindow::updateImageList(bool totalUpdate)
 
 			newImageListWidgetItems[id] = item;
 			ui->_imageList->addTopLevelItem(item);
-			const int topLevelItemCount = ui->_imageList->topLevelItemCount();
-			Q_ASSERT(topLevelItemCount == newImageListWidgetItems.size());
 		}
 		else // An entry for this image has already been added, no need to re-create it
 		{
@@ -187,6 +185,9 @@ void MainWindow::updateImageList(bool totalUpdate)
 
 	// Updating the list
 	_imageListWidgetItems = newImageListWidgetItems;
+
+	const int topLevelItemCount = ui->_imageList->topLevelItemCount();
+	assert(_imageListWidgetItems.size() == topLevelItemCount);
 
 	for (int column = 0; column < ui->_imageList->columnCount(); ++column)
 	{
