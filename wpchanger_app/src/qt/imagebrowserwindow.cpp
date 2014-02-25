@@ -98,7 +98,7 @@ void ImageBrowserWindow::showContextMenu(const QPoint &pos)
 			deleteSelectedImagesFromDisk();
 	}
 	else if (selectedItem == setAsWallpaper && ui->_thumbnailBrowser->selectedItems().size() > 0)
-		_wpChanger.setWallpaper(imageIndexByPath(ui->_thumbnailBrowser->selectedItems().at(0)->data(Qt::UserRole).toString()));
+		_wpChanger.setWallpaper(imageIdByPath(ui->_thumbnailBrowser->selectedItems().at(0)->data(Qt::UserRole).toString()));
 }
 
 // Image double-clicked
@@ -106,7 +106,7 @@ void ImageBrowserWindow::itemActivated(QListWidgetItem * item)
 {
 	if (item)
 	{
-		QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(imageIndexByPath(item->data(Qt::UserRole).toString())).imageFilePath()));
+		QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(imageIdByPath(item->data(Qt::UserRole).toString())).imageFilePath()));
 	}
 }
 
@@ -124,36 +124,21 @@ void ImageBrowserWindow::zoomOut()
 		ui->_thumbnailBrowser->setIconSize(newSize);
 }
 
-void ImageBrowserWindow::removeSelectedImages()
-{
-	const QList<QListWidgetItem*> selected = ui->_thumbnailBrowser->selectedItems();
-	const int numSelected = selected.size();
-
-	std::vector<size_t> indexesToRemove;
-	for (int i = 0; i < numSelected; ++i)
-	{
-		indexesToRemove.push_back(imageIndexByPath(selected[i]->data(Qt::UserRole).toString()));
-		removeItemFromView(selected[i]);
-	}
-
-	_wpChanger.removeImages(indexesToRemove);
-}
-
 //Delete selected images from disk (and from the list if successful)
 void ImageBrowserWindow::deleteSelectedImagesFromDisk()
 {
 	const QList<QListWidgetItem*> selected = ui->_thumbnailBrowser->selectedItems();
 	const int numSelected = selected.size();
 
-	std::vector<size_t> indexesToRemove;
+	std::vector<qulonglong> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		indexesToRemove.push_back(imageIndexByPath(selected[i]->data(Qt::UserRole).toString()));
+		idsToRemove.push_back(imageIdByPath(selected[i]->data(Qt::UserRole).toString()));
 		removeItemFromView(selected[i]);
 	}
 
 
-	_wpChanger.deleteImagesFromDisk(indexesToRemove);
+	_wpChanger.deleteImagesFromDisk(idsToRemove);
 }
 
 // Will also delete item!
@@ -167,11 +152,11 @@ void ImageBrowserWindow::removeItemFromView( QListWidgetItem * item )
 }
 
 // Finds image index in the image list by its file path
-size_t ImageBrowserWindow::imageIndexByPath(QString path) const
+qulonglong ImageBrowserWindow::imageIdByPath(QString path) const
 {
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 		if (_wpChanger.image(i).imageFilePath() == path)
-			return i;
+			return _wpChanger.image(i).id();
 
 	return -1;
 }

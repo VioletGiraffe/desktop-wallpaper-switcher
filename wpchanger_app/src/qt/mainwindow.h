@@ -153,7 +153,7 @@ private:
 	bool                          _bListSaved;
 	size_t                        _previousListSize; // Is used to determine that the list was edited
 
-	std::map<size_t /*id*/, QtImageListItem* /*item*/> _imageListWidgetItems;
+	std::map<qulonglong /*id*/, QtImageListItem* /*item*/> _imageListWidgetItems;
 };
 
 #endif // MAINWINDOW_H

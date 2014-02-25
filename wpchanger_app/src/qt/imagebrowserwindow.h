@@ -23,8 +23,6 @@ public:
 
 	bool populate();
 
-	//Remove selected images from the list
-	void removeSelectedImages();
 	//Delete selected images from disk (and from the list if successful)
 	void deleteSelectedImagesFromDisk();
 
@@ -44,7 +42,7 @@ private:
 	void removeItemFromView (QListWidgetItem * item);
 
 	// Finds image index in the image list by its file path
-	size_t imageIndexByPath (QString path) const;
+	qulonglong imageIdByPath (QString path) const;
 
 private:
 	QShortcut              * _zoomInShortcut, * _zoomOutShortcut;

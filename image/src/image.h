@@ -44,7 +44,7 @@ public:
 	WPOPTIONS stretchMode () const;
 	void setStretchMode (WPOPTIONS mode) const;
 
-	size_t id() const;
+	qulonglong id() const;
 
 private:
 	//The name of file this Image object is associated with
@@ -52,7 +52,7 @@ private:
 	QString _name;
 	QString _folder;
 
-	size_t  _id;
+	qulonglong _id;
 
 	//Is this Image object associated with a valid file?
 	bool _isValid;

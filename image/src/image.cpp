@@ -1,10 +1,11 @@
 #include "image.h"
+#include "sha1.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QImageReader>
-#include <QHash>
 
-Image::Image() :_id(0), _isValid(false)
+Image::Image() :_id(0u), _isValid(false)
 {
 }
 
@@ -61,7 +62,10 @@ bool Image::loadFromFile( const QString& filename )
 		}
 	}
 
-	_id = (size_t)qHash(_filePath) ^ (size_t)this;
+	unsigned char sha1hash[20];
+	QByteArray filePathBytes = _filePath.toUtf8();
+	sha1::calc(filePathBytes.data(), filePathBytes.size(), sha1hash);
+	_id = (*(qulonglong*)(sha1hash+4)) ^ (*(qulonglong*)(sha1hash+12)) ^ (qulonglong)this;
 
 	return _isValid;
 }
@@ -107,7 +111,7 @@ void Image::setStretchMode( WPOPTIONS mode ) const
 	_params._wpDisplayMode = mode;
 }
 
-size_t Image::id() const
+qulonglong Image::id() const
 {
 	return _id;
 }

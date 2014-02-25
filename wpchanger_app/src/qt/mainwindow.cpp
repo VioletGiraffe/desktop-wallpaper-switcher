@@ -127,8 +127,6 @@ void MainWindow::updateImageList(bool totalUpdate)
 	disconnect(ui->_imageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(onImgSelected(QTreeWidgetItem*,QTreeWidgetItem*)));
 	CTime start;
 
-	int skipped = 0;
-
 	if (_wpChanger.numImages() > 0 && _previousListSize != 0)
 	{
 		if (_bListSaved && _previousListSize != _wpChanger.numImages())
@@ -170,7 +168,6 @@ void MainWindow::updateImageList(bool totalUpdate)
 			imageListItem->second->setCurrent(false);
 			newImageListWidgetItems[imageListItem->first] = imageListItem->second;
 			_imageListWidgetItems.erase(imageListItem);
-			++skipped;
 		}
 	}
 
@@ -195,7 +192,7 @@ void MainWindow::updateImageList(bool totalUpdate)
 
 	connect(ui->_imageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(onImgSelected(QTreeWidgetItem*,QTreeWidgetItem*)));
 	_statusBarNumImages.setText(QString ("%1 images in the list").arg(_wpChanger.numImages()));
-	qDebug() << "Updating list of " << _wpChanger.numImages() << " items took " << (CTime() - start) / 1000.0f <<"sec" << ", skipped creating" << skipped << "entries";
+	qDebug() << "Updating list of " << _wpChanger.numImages() << " items took " << (CTime() - start) / 1000.0f <<"sec";
 }
 
 void MainWindow::addImagesFromDirecoryRecursively(const QString& path)
@@ -332,7 +329,7 @@ void MainWindow::removeCurrentWp()
 {
 	if (_wpChanger.currentWallpaper() != invalid_index)
 	{
-		_wpChanger.removeImages(std::vector<size_t>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
+		_wpChanger.removeImages(std::vector<qulonglong>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
 	}
 }
 
@@ -341,7 +338,7 @@ void MainWindow::deleteCurrentWp()
 {
 	if (_wpChanger.currentWallpaper() != invalid_index)
 	{
-		_wpChanger.deleteImagesFromDisk(std::vector<size_t>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
+		_wpChanger.deleteImagesFromDisk(std::vector<qulonglong>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
 	}
 }
 
@@ -389,7 +386,7 @@ void MainWindow::onImgSelected(QTreeWidgetItem* current, QTreeWidgetItem* /*prev
 	if (!current)
 		return;
 
-	const size_t currentlySelectedItemIndex = (size_t)_wpChanger.indexByID(current->data(0, IdRole).toUInt());
+	const size_t currentlySelectedItemIndex = (size_t)_wpChanger.indexByID(current->data(0, IdRole).toULongLong());
 	if (currentlySelectedItemIndex < _wpChanger.numImages())
 	{
 		ui->ImageThumbWidget->displayImage(_wpChanger.image(currentlySelectedItemIndex));
@@ -443,7 +440,7 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 void MainWindow::onWPDblClick( QModelIndex )
 {
 	const QTreeWidgetItem* item = ui->_imageList->currentItem();
-	const size_t idx = _wpChanger.indexByID(item->data(0, IdRole).toUInt());
+	const size_t idx = _wpChanger.indexByID(item->data(0, IdRole).toULongLong());
 	if ( !_wpChanger.setWallpaper(idx) )
 	{
 		setStatusBarMessage("Failed to set selected picture as a wallpaper");
@@ -460,7 +457,7 @@ void MainWindow::displayModeChanged (int mode)
 	const int numSelected = selected.size();
 	for (int i = 0; i < numSelected; ++i)
 	{
-		const size_t itemIdx = _wpChanger.indexByID((size_t)selected[i]->data(0, IdRole).toUInt());
+		const qulonglong itemIdx = _wpChanger.indexByID(selected[i]->data(0, IdRole).toULongLong());
 		_wpChanger.image(itemIdx).setStretchMode(WPOPTIONS(mode));
 	}
 
@@ -494,12 +491,12 @@ void MainWindow::showImageListContextMenu(const QPoint& pos)
 	else if (selectedItem == view)
 	{
 		if (ui->_imageList->currentItem())
-			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID((size_t)ui->_imageList->currentItem()->data(0, Qt::UserRole).toUInt())).imageFilePath()));
+			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID(ui->_imageList->currentItem()->data(0, IdRole).toULongLong())).imageFilePath()));
 	}
 	else if (selectedItem == openFolder)
 	{
 		if (ui->_imageList->currentItem())
-			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID((size_t)ui->_imageList->currentItem()->data(0, Qt::UserRole).toUInt())).imageFileFolder()));
+			QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID(ui->_imageList->currentItem()->data(0, IdRole).toULongLong())).imageFileFolder()));
 	}
 	else if (selectedItem)
 	{
@@ -653,7 +650,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 void MainWindow::selectImage(size_t index)
 {
 	for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
-		if (_wpChanger.indexByID(ui->_imageList->topLevelItem(i)->data(0, IdRole).toUInt()) == index)
+		if (_wpChanger.indexByID(ui->_imageList->topLevelItem(i)->data(0, IdRole).toULongLong()) == index)
 		{
 			ui->_imageList->topLevelItem(i)->setSelected(true);
 		}
@@ -661,16 +658,19 @@ void MainWindow::selectImage(size_t index)
 
 void MainWindow::removeSelectedImages()
 {
-	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
+	QList<QTreeWidgetItem*> selected(ui->_imageList->selectedItems());
 	const int numSelected = selected.size();
+	if (numSelected <= 0)
+		return;
 
-	std::vector<size_t> idsToRemove;
+	std::vector<qulonglong> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		idsToRemove.push_back(selected[i]->data(0, IdRole).toUInt());
+		idsToRemove.push_back(selected[i]->data(0, IdRole).toULongLong());
 	}
 
 	_wpChanger.removeImages(idsToRemove);
+	_bListSaved = false;
 }
 
 //Delete selected images from disk (and from the list if successful)
@@ -678,14 +678,17 @@ void MainWindow::deleteSelectedImagesFromDisk()
 {
 	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
 	const int numSelected = selected.size();
+	if (numSelected <= 0)
+		return;
 
-	std::vector<size_t> idsToRemove;
+	std::vector<qulonglong> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		idsToRemove.push_back(selected[i]->data(0, IdRole).toUInt());
+		idsToRemove.push_back(selected[i]->data(0, IdRole).toULongLong());
 	}
 
 	 _wpChanger.deleteImagesFromDisk(idsToRemove);
+	 _bListSaved = false;
 }
 
 void MainWindow::imageListChanged(size_t /*index*/)
@@ -708,7 +711,7 @@ void MainWindow::wallpaperChanged(size_t index)
 		if (!item)
 			continue;
 
-		if (index < invalid_index && _wpChanger.image(index).id() == (size_t)item->data(0, IdRole).toUInt())
+		if (index < invalid_index && _wpChanger.image(index).id() == item->data(0, IdRole).toULongLong())
 		{
 			item->setCurrent();
 		}

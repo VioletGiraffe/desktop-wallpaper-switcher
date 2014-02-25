@@ -45,18 +45,18 @@ WallpaperChanger& WallpaperChanger::instance()
 }
 
 
-size_t WallpaperChanger::indexByID(size_t id) const
+size_t WallpaperChanger::indexByID(qulonglong id) const
 {
 	if (_indexById.count(id) > 0)
 		return _indexById.at(id);
-	else 
+	else
 	{
 		assert(_indexById.count(id) > 0);
 		return invalid_index;
 	}
 }
 
-size_t WallpaperChanger::idByIndex(size_t index) const
+qulonglong WallpaperChanger::idByIndex(size_t index) const
 {
 	for (auto it = _indexById.begin(); it != _indexById.end(); ++it)
 	{
@@ -65,7 +65,7 @@ size_t WallpaperChanger::idByIndex(size_t index) const
 	}
 
 	return invalid_index;
-	
+
 }
 
 void WallpaperChanger::setCurrentWpIndex(size_t index)
@@ -116,7 +116,7 @@ bool WallpaperChanger::setWallpaper( size_t idx, bool addToHistory /*= true*/ )
 }
 
 // Delete images from disk by IDs
-void WallpaperChanger::deleteImagesFromDisk(const std::vector<size_t> &batchIDs)
+void WallpaperChanger::deleteImagesFromDisk(const std::vector<qulonglong> &batchIDs)
 {
 	std::vector<size_t> batchIndexes;
 	for (auto id = batchIDs.begin(); id != batchIDs.end(); ++id)
@@ -125,7 +125,7 @@ void WallpaperChanger::deleteImagesFromDisk(const std::vector<size_t> &batchIDs)
 		if (index != _indexById.end())
 			batchIndexes.push_back(index->second);
 	}
-	
+
 	adjustHistoryForObsoleteImages(batchIndexes);
 	_imageList.deleteFilesFromDisk(batchIndexes);
 	if (std::find(batchIndexes.begin(), batchIndexes.end(), _currentWPIdx) != batchIndexes.end())
@@ -136,7 +136,7 @@ void WallpaperChanger::deleteImagesFromDisk(const std::vector<size_t> &batchIDs)
 }
 
 // Remove batch of images from the list by their IDs
-void WallpaperChanger::removeImages(const std::vector<size_t> &batchIDs)
+void WallpaperChanger::removeImages(const std::vector<qulonglong> &batchIDs)
 {
 	std::vector<size_t> batchIndexes;
 	for (auto id = batchIDs.begin(); id != batchIDs.end(); ++id)
@@ -218,7 +218,7 @@ void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 	{
 		_indexById[_imageList[index].id()] = index;
 	}
-	
+
 	if (_bUpdatesEnabled)
 		_signalListChanged.invoke(invalid_index);
 }

@@ -20,23 +20,23 @@ public:
 	static WallpaperChanger& instance ();
 
 // Wallpapers
-	size_t indexByID(size_t id) const;
-	size_t idByIndex(size_t index) const;
+	size_t indexByID(qulonglong id) const;
+	qulonglong idByIndex(size_t index) const;
 
 	void setCurrentWpIndex(size_t index);
 
 	// Adds the file to image list
 	bool addImage(const QString& filename, ImgParams params = ImgParams());
-	// Returns QImage by it's index in the list
+	// Returns QImage by its index in the list
 	QImage createQImage(size_t idx) const;
-	// Returns Image by it's index in the list
+	// Returns Image by its index in the list
 	const Image &image(size_t idx) const;
 	// Sets the image as a wallpaper
 	bool setWallpaper(size_t idx, bool addToHistory = true);
 	// Delete images from disk by IDs
-	void deleteImagesFromDisk(const std::vector<size_t /*indexes*/>& batch);
+	void deleteImagesFromDisk(const std::vector<qulonglong /*ids*/>& batch);
 	// Remove batch of images from the list by their IDs
-	void removeImages(const std::vector<size_t /*indexes*/>& batch);
+	void removeImages(const std::vector<qulonglong /*ids*/>& batch);
 	// Remove non-existent entries from list
 	void removeNonexistentEntries();
 
@@ -95,8 +95,8 @@ private:
 	ImageList    _imageList;
 	size_t       _currentWPIdx;
 	size_t       _currentWPIdxInNavigationList;
-	std::map<size_t /*id*/, size_t /*index*/> _indexById;
-	bool               _bUpdatesEnabled;
+	std::map<qulonglong /*id*/, size_t /*index*/> _indexById;
+	bool         _bUpdatesEnabled;
 
 // Time
 	// List of previously active wallpapers for back/forth navigation
