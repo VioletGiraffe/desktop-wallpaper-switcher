@@ -91,7 +91,7 @@ private slots:
 	void keyPressEvent(QKeyEvent * e);
 
 private:
-	void selectImage (size_t index);
+	void selectImage (qulonglong id);
 
 	void dropEvent(QDropEvent*);
 	void dragEnterEvent(QDragEnterEvent *event);

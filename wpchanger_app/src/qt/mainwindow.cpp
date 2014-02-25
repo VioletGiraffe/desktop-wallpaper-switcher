@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(ui->_imageList, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showImageListContextMenu(const QPoint&)));
 
-	const QString listFileName (CSettings().value(SETTINGS_IMAGE_LIST_FILE).toString());
+	const QString listFileName(CSettings().value(SETTINGS_IMAGE_LIST_FILE).toString());
 	if (!listFileName.isEmpty())
 	{
 		if (_wpChanger.loadList(listFileName))
@@ -147,7 +147,8 @@ void MainWindow::updateImageList(bool totalUpdate)
 	decltype(_imageListWidgetItems) newImageListWidgetItems;
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 	{
-		const auto imageListItem = _imageListWidgetItems.find(_wpChanger.image(i).id());
+		const qulonglong id = _wpChanger.image(i).id();
+		const auto imageListItem = _imageListWidgetItems.find(id);
 		if (imageListItem == _imageListWidgetItems.end()) // This image is not yet in the widget, adding
 		{
 			QtImageListItem * item =  new QtImageListItem(_wpChanger.image(i), _wpChanger.currentWallpaper() == i);
@@ -160,8 +161,10 @@ void MainWindow::updateImageList(bool totalUpdate)
 				}
 			}
 
-			newImageListWidgetItems[_wpChanger.image(i).id()] = item;
+			newImageListWidgetItems[id] = item;
 			ui->_imageList->addTopLevelItem(item);
+			const int topLevelItemCount = ui->_imageList->topLevelItemCount();
+			Q_ASSERT(topLevelItemCount == newImageListWidgetItems.size());
 		}
 		else // An entry for this image has already been added, no need to re-create it
 		{
@@ -286,17 +289,17 @@ void MainWindow::closeEvent(QCloseEvent *e)
 // Select duplicate entries in the list
 void MainWindow::selectDuplicateEntries()
 {
-	std::vector<std::pair<size_t, QString> > vec;
+	std::vector<std::pair<qulonglong, QString> > vec;
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 	{
-		vec.push_back(std::make_pair(i, _wpChanger.image(i).imageFilePath()));
+		vec.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).imageFilePath()));
 	}
 
-	std::sort(vec.begin(), vec.end(), [](std::pair<size_t, QString> a, std::pair<size_t, QString> b) { return a.second < b.second; });
+	std::sort(vec.begin(), vec.end(), [](std::pair<qulonglong, QString> a, std::pair<qulonglong, QString> b) { return a.second < b.second; });
 
 	for (size_t i = 0; i < vec.size() - 1; ++i)
 	{
-		if (vec[i+1].second == vec[i].second)
+		if (vec[i].second == vec[i+1].second)
 			selectImage(vec[i].first);
 	}
 }
@@ -304,17 +307,17 @@ void MainWindow::selectDuplicateEntries()
 // Find and select duplicate files on disk
 void MainWindow::findDuplicateFiles()
 {
-	std::vector<std::pair<size_t, int> > vec;
+	std::vector<std::pair<qulonglong, int> > vec;
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 	{
-		vec.push_back(std::make_pair(i, _wpChanger.image(i).params()._fileSize));
+		vec.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).params()._fileSize));
 	}
 
-	std::sort(vec.begin(), vec.end(), [](std::pair<size_t, int> a, std::pair<size_t, int> b) { return a.second < b.second; });
+	std::sort(vec.begin(), vec.end(), [](std::pair<qulonglong, int> a, std::pair<qulonglong, int> b) { return a.second < b.second; });
 
 	for (size_t i = 0; i < vec.size() - 1; ++i)
 	{
-		if (vec[i+1].second == vec[i].second)
+		if (vec[i].second == vec[i+1].second)
 			selectImage(vec[i].first);
 	}
 }
@@ -571,6 +574,7 @@ void MainWindow::loadImageList()
 			_currentListFileName = filename;
 			_bListSaved = true;
 			_previousListSize = _wpChanger.numImages();
+			CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
 		}
 	}
 }
@@ -647,15 +651,16 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 	}
 }
 
-void MainWindow::selectImage(size_t index)
+void MainWindow::selectImage(qulonglong id)
 {
 	for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
-		if (_wpChanger.indexByID(ui->_imageList->topLevelItem(i)->data(0, IdRole).toULongLong()) == index)
+		if (ui->_imageList->topLevelItem(i)->data(0, IdRole).toULongLong() == id)
 		{
 			ui->_imageList->topLevelItem(i)->setSelected(true);
 		}
 }
 
+#include <set>
 void MainWindow::removeSelectedImages()
 {
 	QList<QTreeWidgetItem*> selected(ui->_imageList->selectedItems());
@@ -663,10 +668,16 @@ void MainWindow::removeSelectedImages()
 	if (numSelected <= 0)
 		return;
 
-	std::vector<qulonglong> idsToRemove;
+	std::set<qulonglong> set;
+	std::vector<qulonglong> idsToRemove, duplicates;
 	for (int i = 0; i < numSelected; ++i)
 	{
-		idsToRemove.push_back(selected[i]->data(0, IdRole).toULongLong());
+		const qulonglong id = selected[i]->data(0, IdRole).toULongLong();
+		idsToRemove.push_back(id);
+		if (set.count(id) > 0)
+			duplicates.push_back(id);
+		else
+			set.insert(id);
 	}
 
 	_wpChanger.removeImages(idsToRemove);

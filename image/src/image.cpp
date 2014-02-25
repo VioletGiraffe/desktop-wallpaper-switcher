@@ -1,5 +1,6 @@
 #include "image.h"
 #include "sha1.h"
+#include <set>
 
 #include <QDir>
 #include <QFileInfo>
@@ -62,10 +63,19 @@ bool Image::loadFromFile( const QString& filename )
 		}
 	}
 
+	static std::set<qulonglong> ids;
+	static std::set<QString> names;
+
 	unsigned char sha1hash[20];
-	QByteArray filePathBytes = _filePath.toUtf8();
+	const void * thisData = this;
+	const QByteArray filePathBytes = _filePath.toUtf8().append(QByteArray::fromRawData((const char*)&thisData, sizeof(thisData)));
 	sha1::calc(filePathBytes.data(), filePathBytes.size(), sha1hash);
-	_id = (*(qulonglong*)(sha1hash+4)) ^ (*(qulonglong*)(sha1hash+12)) ^ (qulonglong)this;
+	_id = *(qulonglong*)(sha1hash) ^ *(qulonglong*)(sha1hash+12);
+
+	names.insert(_filePath);
+	ids.insert(_id);
+
+	Q_ASSERT(names.size() == ids.size());
 
 	return _isValid;
 }
