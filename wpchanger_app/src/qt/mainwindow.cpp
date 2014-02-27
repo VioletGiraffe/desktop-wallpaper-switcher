@@ -201,21 +201,19 @@ void MainWindow::updateImageList(bool totalUpdate)
 
 void MainWindow::addImagesFromDirecoryRecursively(const QString& path)
 {
-	const QFileInfo info (path);
-	if (info.exists() /*&& path != ".." && path != "."*/)
+	const QFileInfo info(path);
+	if (info.exists())
 	{
 		if (info.isDir())
 		{
-			const QDir dir (path);
-			const QFileInfoList entries = dir.entryInfoList();
+			const QDir dir(path);
+			const QFileInfoList entries = dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 			for (int i = 0; i < entries.size(); ++i)
 			{
-				const QString newPath = entries[i].absoluteFilePath();
-				if (newPath != info.absoluteFilePath() && newPath.size() > info.absoluteFilePath().size()) // ???
-					addImagesFromDirecoryRecursively(entries[i].absoluteFilePath());
+				addImagesFromDirecoryRecursively(entries[i].absoluteFilePath());
 			}
 		}
-		else if (WallpaperChanger::isSupportedImageFile(path))
+		else if (info.isFile() && WallpaperChanger::isSupportedImageFile(path))
 		{
 			//Attempt to add and indicate the result
 			if (!_wpChanger.addImage(path))
@@ -627,11 +625,6 @@ void MainWindow::restoreWindow()
 	setWindowState( (windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
 	raise();
 	activateWindow();
-}
-
-void MainWindow::trayIconMenu()
-{
-
 }
 
 //Key pressed

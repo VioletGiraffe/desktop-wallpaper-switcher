@@ -85,7 +85,6 @@ private slots:
 // Interface
 	void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
 	void restoreWindow();
-	void trayIconMenu();
 
 // Key pressed
 	void keyPressEvent(QKeyEvent * e);
@@ -113,6 +112,8 @@ private:
 	void addImagesFromDirecoryRecursively(const QString& dir);
 
 	void promptToSaveList();
+
+	static void listAllFilesInDirectoryTree(const QString& dirPath, std::vector<QString>& filePaths);
 
 // Slots
 	// Image list was updated
