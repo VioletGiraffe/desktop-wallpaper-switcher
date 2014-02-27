@@ -1,10 +1,9 @@
 #include "qtimagelistitem.h"
 
 #include <QTreeWidgetItem>
-#include <set>
 #include <assert.h>
 
-static const unsigned char currentWpMarkSymbol [] = {
+static const unsigned char currentWpMarkSymbol[] = {
 	0xB6, // ▶
 	0x25
 };
@@ -14,17 +13,9 @@ QtImageListItem::QtImageListItem(const Image& img, bool currentlySetWallpaper/* 
 	if (currentlySetWallpaper)
 		setText(MarkerColumn, QString::fromUtf16((const ushort*)currentWpMarkSymbol));
 
-	static std::set<qulonglong> ids;
-	static std::set<QString> names;
 	const qulonglong id = img.id();
 
-	ids.insert(id);
-	names.insert(img.imageFilePath());
-
-	assert(names.size() <= ids.size());
-
 	setData(0, IdRole, QVariant(id)); // This WP's ID
-	assert(id == data(0, IdRole).toULongLong());
 
 	setText(FileNameColumn, img.imageFileName());
 

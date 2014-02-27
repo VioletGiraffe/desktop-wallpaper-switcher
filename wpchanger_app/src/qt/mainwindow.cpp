@@ -290,18 +290,18 @@ void MainWindow::closeEvent(QCloseEvent *e)
 // Select duplicate entries in the list
 void MainWindow::selectDuplicateEntries()
 {
-	std::vector<std::pair<qulonglong, QString> > vec;
+	std::vector<std::pair<qulonglong, QString> > imagePaths;
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 	{
-		vec.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).imageFilePath()));
+		imagePaths.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).imageFilePath()));
 	}
 
-	std::sort(vec.begin(), vec.end(), [](std::pair<qulonglong, QString> a, std::pair<qulonglong, QString> b) { return a.second < b.second; });
+	std::sort(imagePaths.begin(), imagePaths.end(), [](std::pair<qulonglong, QString> a, std::pair<qulonglong, QString> b) { return a.second < b.second; });
 
-	for (size_t i = 0; i < vec.size() - 1; ++i)
+	for (size_t i = 0; i < imagePaths.size()-1; ++i)
 	{
-		if (vec[i].second == vec[i+1].second)
-			selectImage(vec[i].first);
+		if (imagePaths[i].second == imagePaths[i+1].second)
+			selectImage(imagePaths[i+1].first);
 	}
 }
 
@@ -404,27 +404,24 @@ void MainWindow::dropEvent(QDropEvent * de)
 	const QMimeData * mimeData = de->mimeData();
 	_wpChanger.enableListUpdateCallbacks(false);
 
-	if (mimeData->urls().size() == 1)
+	//For every dropped file
+	for (int urlIndex = 0; urlIndex < mimeData->urls().size(); ++urlIndex)
 	{
-		const QString fileName = mimeData->urls().at(0).path().remove(0, 1);
-		if (fileName.endsWith(".wil")) // It's a wallaper list
+		//Remove the heading '/
+		const QString filename = mimeData->urls().at(urlIndex).path().remove(0, 1);
+		// Checking for WP list
+		if (mimeData->urls().size() == 1 && mimeData->urls().at(0).path().remove(0, 1).endsWith(".wil"))
 		{
-			if (_wpChanger.loadList(fileName))
+			if (_wpChanger.loadList(mimeData->urls().at(0).path()))
 			{
-				_currentListFileName = fileName;
+				_currentListFileName = mimeData->urls().at(0).path();
 				CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
 			}
+
+			break;
 		}
-	}
-	else
-	{
-		//For every dropped file
-		for (int urlIndex = 0; urlIndex < mimeData->urls().size(); ++urlIndex)
-		{
-			//Remove the heading '/
-			const QString filename = mimeData->urls().at(urlIndex).path().remove(0, 1);
+		else
 			addImagesFromDirecoryRecursively(filename);
-		}
 	}
 
 	_wpChanger.enableListUpdateCallbacks(true);
@@ -661,7 +658,6 @@ void MainWindow::selectImage(qulonglong id)
 		}
 }
 
-#include <set>
 void MainWindow::removeSelectedImages()
 {
 	QList<QTreeWidgetItem*> selected(ui->_imageList->selectedItems());
@@ -669,16 +665,11 @@ void MainWindow::removeSelectedImages()
 	if (numSelected <= 0)
 		return;
 
-	std::set<qulonglong> set;
-	std::vector<qulonglong> idsToRemove, duplicates;
+	std::vector<qulonglong> idsToRemove;
 	for (int i = 0; i < numSelected; ++i)
 	{
 		const qulonglong id = selected[i]->data(0, IdRole).toULongLong();
 		idsToRemove.push_back(id);
-		if (set.count(id) > 0)
-			duplicates.push_back(id);
-		else
-			set.insert(id);
 	}
 
 	_wpChanger.removeImages(idsToRemove);

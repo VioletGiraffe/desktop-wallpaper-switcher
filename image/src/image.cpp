@@ -1,10 +1,11 @@
 #include "image.h"
-#include "sha1.h"
-#include <set>
 
+#include <assert.h>
 #include <QDir>
 #include <QFileInfo>
 #include <QImageReader>
+#include <QCryptographicHash>
+#include <QUuid>
 
 Image::Image() :_id(0u), _isValid(false)
 {
@@ -63,20 +64,11 @@ bool Image::loadFromFile( const QString& filename )
 		}
 	}
 
-	static std::set<qulonglong> ids;
-	static std::set<QString> names;
+	const QByteArray uniqueData = _filePath.toUtf8().append(QUuid::createUuid().toByteArray());
+	const QByteArray hash = QCryptographicHash::hash(uniqueData, QCryptographicHash::Md5);
+	assert(hash.size() == 16);
 
-	unsigned char sha1hash[20];
-	const void * thisData = this;
-	const QByteArray filePathBytes = _filePath.toUtf8().append(QByteArray::fromRawData((const char*)&thisData, sizeof(thisData)));
-	sha1::calc(filePathBytes.data(), filePathBytes.size(), sha1hash);
-	_id = *(qulonglong*)(sha1hash) ^ *(qulonglong*)(sha1hash+12);
-
-	names.insert(_filePath);
-	ids.insert(_id);
-
-	Q_ASSERT(names.size() <= ids.size());
-
+	_id = *(qulonglong*)(hash.data()) ^ *(qulonglong*)(hash.data()+8);
 	return _isValid;
 }
 

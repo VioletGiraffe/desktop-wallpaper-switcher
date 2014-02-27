@@ -28,7 +28,7 @@ public:
 	explicit MainWindow(QWidget *parent = 0);
 	~MainWindow();
 
-	//Delets all the items of the tree, freeing the memory
+	//Deletes all the items of the tree, freeing the memory
 	void clearImageList();
 
 	void loadGeometry();
@@ -39,15 +39,15 @@ protected:
 
 private slots:
 	// Select duplicate entries in the list
-	void selectDuplicateEntries ();
+	void selectDuplicateEntries();
 	// Find and select duplicate files on disk
-	void findDuplicateFiles ();
+	void findDuplicateFiles();
 	// Remove non-existent images from list
 	void removeNonExistingEntries();
 	// Removes current wallpaper from list
-	void removeCurrentWp ();
+	void removeCurrentWp();
 	// Deletes current wallpaper from disk
-	void deleteCurrentWp ();
+	void deleteCurrentWp();
 	// Request to show "About" window
 	void onActionAboutTriggered();
 	// Triggers a dialog window to add images to a list
@@ -58,10 +58,10 @@ private slots:
 	void onWPDblClick(QModelIndex);
 
 	// Wallpaper display mode changed
-	void displayModeChanged (int mode);
+	void displayModeChanged(int mode);
 
 	// Image browser requested
-	void openImageBrowser ();
+	void openImageBrowser();
 
 	void showImageListContextMenu (const QPoint& pos);
 
@@ -105,7 +105,7 @@ private:
 	void deleteSelectedImagesFromDisk();
 
 	//Displays info for image at specified index
-	void displayImageInfo (size_t imageIndex);
+	void displayImageInfo(size_t imageIndex);
 
 	//Updates the contents of image list control according to _wpChanger::_imageList
 	void updateImageList(bool totalUpdate);
@@ -116,16 +116,16 @@ private:
 
 // Slots
 	// Image list was updated
-	void imageListChanged (size_t index);
+	void imageListChanged(size_t index);
 	// Image list was cleared
 	void imageListCleared();
 	// Current wallpaper changed
-	void wallpaperChanged (size_t index);
+	void wallpaperChanged(size_t index);
 	// Time until next switch
-	void timeToNextSwitch (size_t seconds);
+	void timeToNextSwitch(size_t seconds);
 
 // UI setup
-	void initToolbar ();
+	void initToolbar();
 
 
 private:

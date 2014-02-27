@@ -10,12 +10,10 @@ UI_DIR      = ../build
 RCC_DIR     = ../build
 
 HEADERS += \
-	src/image.h \
-    src/sha1.h
+	src/image.h
 
 SOURCES += \
-	src/image.cpp \
-    src/sha1.cpp
+	src/image.cpp
 
 win*{
 	QMAKE_CXXFLAGS += /MP
