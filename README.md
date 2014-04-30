@@ -1,4 +1,4 @@
-desktop-wallpaper-switcher
+Desktop Wallpaper Switcher
 ==========================
 
 Cross-platform (Windows / Mac OS X / Linux) desktop wallpaper switcher and wallpaper list manager; also has a simple image browser for quickly sifting through your heaps of wallpapers (and deleting those you don't like.)
