@@ -41,23 +41,14 @@ Source: binaries/WallpaperSwitcher.exe; DestDir: {app}; Flags: ignoreversion;
 ;3rdparty binaries
 
 ;Qt binaries
-Source: binaries/Qt/phonon4.dll; DestDir: {app}; Flags: ignoreversion;
-Source: binaries/Qt/QtCore4.dll; DestDir: {app}; Flags: ignoreversion;
-Source: binaries/Qt/QtGui4.dll; DestDir: {app}; Flags: ignoreversion;
+Source: binaries/Qt/*; DestDir: {app}; Flags: ignoreversion;
 
 ;Qt plugins 
-Source: binaries/Qt/imageformats\qgif4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qico4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qjpeg4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qmng4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qsvg4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qtga4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
-Source: binaries/Qt/imageformats\qtiff4.dll; DestDir: {app}\imageformats; Flags: ignoreversion;
+Source: binaries/Qt/imageformats\*; DestDir: {app}\imageformats; Flags: ignoreversion;
+Source: binaries/Qt/platforms\*; DestDir: {app}\platforms; Flags: ignoreversion skipifsourcedoesntexist;
 
 ;MSVC binaries
-Source: binaries/msvcr/msvcp100.dll; DestDir: {app}; Flags: ignoreversion;
-Source: binaries/msvcr/msvcr100.dll; DestDir: {app}; Flags: ignoreversion;
-Source: binaries/msvcr/vcomp100.dll; DestDir: {app}; Flags: ignoreversion;
+Source: binaries/msvcr/*; DestDir: {app}; Flags: ignoreversion;
 
 ;License
 Source: license.rtf; DestDir: {app}; 
