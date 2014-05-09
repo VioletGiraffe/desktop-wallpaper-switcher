@@ -6,6 +6,8 @@
 #include <QImageReader>
 #include <QCryptographicHash>
 #include <QUuid>
+#include <QFile>
+#include <QDebug>
 
 Image::Image() :_id(0u), _isValid(false)
 {
@@ -116,4 +118,22 @@ void Image::setStretchMode( WPOPTIONS mode ) const
 qulonglong Image::id() const
 {
 	return _id;
+}
+
+qulonglong Image::contentsHash() const
+{
+	QFile imageFile(_filePath);
+	if (!imageFile.exists())
+		return 0;
+
+	if (!imageFile.open(QIODevice::ReadOnly))
+	{
+		qDebug() << "Couldn't open file" << _filePath << ":" << imageFile.errorString();
+		return 0;
+	}
+
+	const QByteArray hash(QCryptographicHash::hash(imageFile.readAll(), QCryptographicHash::Md5));
+	assert(hash.size() == 16);
+
+	return *(qulonglong*)(hash.data()) ^ *(qulonglong*)(hash.data()+8);
 }

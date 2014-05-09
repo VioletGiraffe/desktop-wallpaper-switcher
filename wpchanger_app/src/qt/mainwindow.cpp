@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "aboutdialog/aboutdialog.h"
 
 #include "imagelist/qtimagelistitem.h"
 #include "settingsdialog.h"
@@ -24,6 +25,8 @@
 #include <QStandardPaths>
 #endif
 
+#include <thread>
+
 #include <assert.h>
 #include "time/ctime.h"
 
@@ -35,10 +38,9 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	_aboutDlg(new AboutDialog(this)),
-	_timeToSwitch(0),
 	_trayIcon(QApplication::style()->standardIcon(QStyle::SP_MediaStop), this),
 	_wpChanger(WallpaperChanger::instance()),
+	_timeToSwitch(0),
 	_bListSaved(true),
 	_previousListSize(0)
 {
@@ -55,9 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->statusBar->addWidget(&_statusBarMsgLabel);
 
-	_statusBarTimeToSwitchLabel.setAlignment(Qt::AlignRight);
+	_statusBarTimeToSwitchLabel.setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 	_statusBarTimeToSwitchLabel.setToolTip("Time until next switch");
 	ui->statusBar->addWidget(&_statusBarTimeToSwitchLabel);
+
 
 	ui->statusBar->addWidget(&_statusBarNumImages);
 
@@ -74,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionFind_duplicate_list_entries, SIGNAL(triggered()), SLOT(selectDuplicateEntries()));
 	connect(ui->actionRemove_Non_Existent_Entries, SIGNAL(triggered()), SLOT(removeNonExistingEntries()));
 	connect(ui->actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(ui->action_About, SIGNAL(triggered()), SLOT(onActionAboutTriggered()));
 
 	setAcceptDrops(true);
 
@@ -100,18 +104,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	const size_t wpIndex = (size_t)CSettings().value(SETTINGS_CURRENT_WALLPAPER, std::numeric_limits<uint>().max()).toUInt();
 	if (wpIndex < std::numeric_limits<uint>().max())
-	{
 		_wpChanger.setCurrentWpIndex(wpIndex);
-	}
 
 	_previousListSize = _wpChanger.numImages();
 
-	ui->_wpModeComboBox->setEnabled(false);
+	connect(this, SIGNAL(signalUpdateProgress(int,bool,QString)), SLOT(updateProgress(int,bool,QString)), Qt::QueuedConnection);
+
+	_progressBar.setVisible(false);
+	ui->statusBar->addWidget(&_progressBar);
 }
 
 MainWindow::~MainWindow()
 {
-	delete _aboutDlg;
 	delete ui;
 }
 
@@ -288,37 +292,62 @@ void MainWindow::closeEvent(QCloseEvent *e)
 // Select duplicate entries in the list
 void MainWindow::selectDuplicateEntries()
 {
-	std::vector<std::pair<qulonglong, QString> > imagePaths;
+	struct ImagePath {
+		ImagePath(const QString path_, qulonglong id_): path(path_), id(id_) {}
+		bool operator<(const ImagePath& other) const {return path < other.path;}
+		bool operator==(const ImagePath& other) const {return path == other.path;}
+
+		QString    path;
+		qulonglong id;
+	};
+
+	std::vector<ImagePath> imagePaths;
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
-	{
-		imagePaths.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).imageFilePath()));
-	}
+		imagePaths.emplace_back(ImagePath(_wpChanger.image(i).imageFilePath(), _wpChanger.image(i).id()));
 
-	std::sort(imagePaths.begin(), imagePaths.end(), [](std::pair<qulonglong, QString> a, std::pair<qulonglong, QString> b) { return a.second < b.second; });
+	std::sort(imagePaths.begin(), imagePaths.end());
 
-	for (size_t i = 0; i < imagePaths.size()-1; ++i)
+	auto it = std::adjacent_find(imagePaths.begin(), imagePaths.end());
+	while(it != imagePaths.end())
 	{
-		if (imagePaths[i].second == imagePaths[i+1].second)
-			selectImage(imagePaths[i+1].first);
+		selectImage(it->id);
+		it = std::adjacent_find(it+1, imagePaths.end());
 	}
 }
 
 // Find and select duplicate files on disk
 void MainWindow::findDuplicateFiles()
 {
-	std::vector<std::pair<qulonglong, int> > vec;
-	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
-	{
-		vec.push_back(std::make_pair(_wpChanger.image(i).id(), _wpChanger.image(i).params()._fileSize));
-	}
+	std::thread([this]() {
+		struct ImageContentsHash {
+			ImageContentsHash(qulonglong contentsHash_, qulonglong id_): contentsHash(contentsHash_), id(id_) {}
+			bool operator<(const ImageContentsHash& other) const {return contentsHash < other.contentsHash;}
+			bool operator==(const ImageContentsHash& other) const {return contentsHash == other.contentsHash;}
 
-	std::sort(vec.begin(), vec.end(), [](std::pair<qulonglong, int> a, std::pair<qulonglong, int> b) { return a.second < b.second; });
+			qulonglong contentsHash;
+			qulonglong id;
+		};
 
-	for (size_t i = 0; i < vec.size() - 1; ++i)
-	{
-		if (vec[i].second == vec[i+1].second)
-			selectImage(vec[i].first);
-	}
+		emit signalUpdateProgress(0, true, QString("Scanning files (0/%1)...").arg(_wpChanger.numImages()));
+		std::vector<ImageContentsHash> imageHashes;
+		for (size_t i = 0; i < _wpChanger.numImages(); ++i)
+			if (_wpChanger.imageExists(i))
+			{
+				imageHashes.emplace_back(ImageContentsHash(_wpChanger.image(i).contentsHash(), _wpChanger.image(i).id()));
+				emit signalUpdateProgress(100 * i / _wpChanger.numImages(), true, QString("Scanning files (%1/%2)...").arg(i).arg(_wpChanger.numImages()));
+			}
+
+			std::sort(imageHashes.begin(), imageHashes.end());
+
+			auto it = std::adjacent_find(imageHashes.begin(), imageHashes.end());
+			while(it != imageHashes.end())
+			{
+				selectImage(it->id);
+				it = std::adjacent_find(it+1, imageHashes.end());
+			}
+
+			emit signalUpdateProgress(100, false, QString());
+	}).detach();
 }
 
 void MainWindow::removeNonExistingEntries()
@@ -347,7 +376,7 @@ void MainWindow::deleteCurrentWp()
 //Request to show "About" window
 void MainWindow::onActionAboutTriggered()
 {
-	_aboutDlg->show();
+	AboutDialog(this).exec();
 }
 
 //Triggers a dialog window to add images to a list
@@ -642,6 +671,13 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
 	}
 }
 
+void MainWindow::updateProgress(int percent, bool show, QString text)
+{
+	_progressBar.setValue(percent);
+	_progressBar.setVisible(show);
+	_progressBar.setFormat(text + " %p%");
+}
+
 void MainWindow::selectImage(qulonglong id)
 {
 	for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
@@ -683,8 +719,8 @@ void MainWindow::deleteSelectedImagesFromDisk()
 		idsToRemove.push_back(selected[i]->data(0, IdRole).toULongLong());
 	}
 
-	 _wpChanger.deleteImagesFromDisk(idsToRemove);
-	 _bListSaved = false;
+	_wpChanger.deleteImagesFromDisk(idsToRemove);
+	_bListSaved = false;
 }
 
 void MainWindow::imageListChanged(size_t /*index*/)

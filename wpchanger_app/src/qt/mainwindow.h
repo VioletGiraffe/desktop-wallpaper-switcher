@@ -1,13 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "aboutdialog/aboutdialog.h"
 #include "imagelist/qtimagelistitem.h"
 #include "thumbnailwidget/imagethumbnailwidget.h"
 #include "signals/signal.h"
 #include "imagebrowserwindow.h"
 
 #include <QMainWindow>
+#include <QProgressBar>
 #include <QLabel>
 #include <QSystemTrayIcon>
 #include <vector>
@@ -89,6 +89,9 @@ private slots:
 // Key pressed
 	void keyPressEvent(QKeyEvent * e);
 
+// Progress notifications
+	void updateProgress(int percent, bool show, QString text);
+
 private:
 	void selectImage (qulonglong id);
 
@@ -128,10 +131,13 @@ private:
 // UI setup
 	void initToolbar();
 
+signals:
+	// To update UI from within worker threads
+	void signalUpdateProgress(int percent, bool show, QString text);
+
 
 private:
 	Ui::MainWindow              * ui;
-	AboutDialog                 * _aboutDlg;
 	QSystemTrayIcon               _trayIcon;
 
 	ImageBrowserWindow            _browserWindow;
@@ -142,6 +148,7 @@ private:
 	QString                       _currentListFileName;
 	QLabel                        _statusBarMsgLabel;
 	QLabel                        _statusBarTimeToSwitchLabel;
+	QProgressBar                  _progressBar;
 	QLabel                        _statusBarNumImages;
 
 	size_t                        _timeToSwitch;

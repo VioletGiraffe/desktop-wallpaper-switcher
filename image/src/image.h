@@ -46,6 +46,9 @@ public:
 
 	qulonglong id() const;
 
+	// Careful, expensive operation
+	qulonglong contentsHash() const;
+
 private:
 	//The name of file this Image object is associated with
 	QString _filePath;

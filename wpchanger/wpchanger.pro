@@ -25,6 +25,8 @@ INCLUDEPATH += \
 
 LIBS += -L../bin -limage
 
+DEFINES += NO_QTUTILS_WIDGETS
+
 win*{
 	QMAKE_CXXFLAGS += /MP
 	CXXFLAGS += /favor:blend
