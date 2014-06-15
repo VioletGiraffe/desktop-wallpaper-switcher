@@ -128,10 +128,9 @@ void ImageBrowserWindow::zoomOut()
 void ImageBrowserWindow::deleteSelectedImagesFromDisk()
 {
 	const QList<QListWidgetItem*> selected = ui->_thumbnailBrowser->selectedItems();
-	const int numSelected = selected.size();
 
 	std::vector<qulonglong> idsToRemove;
-	for (int i = 0; i < numSelected; ++i)
+	for (int i = 0; i < selected.size(); ++i)
 	{
 		idsToRemove.push_back(imageIdByPath(selected[i]->data(Qt::UserRole).toString()));
 		removeItemFromView(selected[i]);

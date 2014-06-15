@@ -191,6 +191,7 @@ void MainWindow::updateImageList(bool totalUpdate)
 	_imageListWidgetItems = newImageListWidgetItems;
 
 	const int topLevelItemCount = ui->_imageList->topLevelItemCount();
+	Q_UNUSED(topLevelItemCount);
 	assert(_imageListWidgetItems.size() == topLevelItemCount);
 
 	for (int column = 0; column < ui->_imageList->columnCount(); ++column)
@@ -632,11 +633,6 @@ void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
 	else if (reason == QSystemTrayIcon::Context)
 	{
 		QMenu menu;
-		if (_wpChanger.currentWallpaper() != invalid_index)
-		{
-			menu.addAction(_wpChanger.image(_wpChanger.currentWallpaper()).imageFileName());
-			menu.addSeparator();
-		}
 		menu.addAction(ui->actionNext_wallpaper);
 		menu.addAction(ui->actionPrevious_Wallpaper);
 		menu.addSeparator();
@@ -737,6 +733,7 @@ void MainWindow::imageListCleared()
 void MainWindow::wallpaperChanged(size_t index)
 {
 	CSettings().setValue(SETTINGS_CURRENT_WALLPAPER, (uint)index);
+	_trayIcon.setToolTip(_wpChanger.image(index).imageFileName());
 	for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
 	{
 		QtImageListItem * item = dynamic_cast<QtImageListItem*>(ui->_imageList->topLevelItem(i));
