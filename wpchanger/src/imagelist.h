@@ -8,6 +8,7 @@
 #include <limits>
 
 const size_t invalid_index = std::numeric_limits<size_t>().max();
+const qulonglong invalid_id = std::numeric_limits<qulonglong>().max();
 
 class ImageList
 {

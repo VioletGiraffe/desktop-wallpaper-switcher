@@ -3,6 +3,7 @@
 
 #include "imagelist.h"
 #include "signals/signal.h"
+#include "historylist/chistorylist.h"
 
 #include <map>
 #include <QString>
@@ -89,23 +90,22 @@ private:
 	bool setWallpaperImpl (size_t idx);
 
 	// Check if any of the images from a list provided are in history, adjust history if so (to prevent invalid history record)
-	void adjustHistoryForObsoleteImages (const std::vector<size_t>& batch);
+	void adjustHistoryForObsoleteImages ();
 
 private:
 	ImageList    _imageList;
-	size_t       _currentWPIdx;
-	size_t       _currentWPIdxInNavigationList;
+	qulonglong   _currentWPId;
 	std::map<qulonglong /*id*/, size_t /*index*/> _indexById;
 	bool         _bUpdatesEnabled;
 
 // Time
 	// List of previously active wallpapers for back/forth navigation
-	std::vector<size_t> _previousWallPapers;
-	QTimer              _qTimer;
+	CHistoryList<qulonglong> _previousWallPapers;
+	QTimer                   _qTimer;
 	// Time since last switch
-	QTime               _qTime;
-	Slot                _slotListChanged;
-	Slot                _slotListCleared;
+	QTime                    _qTime;
+	Slot                     _slotListChanged;
+	Slot                     _slotListCleared;
 
 private:
 	static QString normalizeFileName(const QString filename);

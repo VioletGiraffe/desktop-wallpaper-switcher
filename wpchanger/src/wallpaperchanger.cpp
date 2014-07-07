@@ -22,8 +22,7 @@
 #define TIMER_INTERVAL 1000
 
 WallpaperChanger::WallpaperChanger():
-	_currentWPIdx (invalid_index),
-	_currentWPIdxInNavigationList(0),
+	_currentWPId(invalid_id),
 	_bUpdatesEnabled(true)
 {
 	_qTimer.setInterval(TIMER_INTERVAL);
@@ -73,7 +72,7 @@ void WallpaperChanger::setCurrentWpIndex(size_t index)
 	if (index < numImages())
 		setWallpaper(index);
 	else
-		_currentWPIdx = invalid_index;
+		_currentWPId = invalid_id;
 }
 
 bool WallpaperChanger::addImage(const QString &filename, ImgParams params /* = ImgParams() */)
@@ -81,7 +80,6 @@ bool WallpaperChanger::addImage(const QString &filename, ImgParams params /* = I
 	Image img (filename, params);
 	if (img.isValidImage ())
 	{
-		_previousWallPapers.clear();
 		_imageList.addImage(img);
 		return true;
 	}
@@ -105,11 +103,13 @@ const Image& WallpaperChanger::image( size_t idx ) const
 bool WallpaperChanger::setWallpaper( size_t idx, bool addToHistory /*= true*/ )
 {
 	const bool succ = setWallpaperImpl(idx);
-	if ( succ && addToHistory )
-		_previousWallPapers.push_back(idx);
 
 	if (succ)
-		_currentWPIdx = idx;
+	{
+		_currentWPId = _imageList[idx].id();
+		if (addToHistory)
+			_previousWallPapers.addLatest(_currentWPId);
+	}
 	else
 		qDebug() << "Failed to set wallpaper " << normalizeFileName(image(idx).imageFilePath());
 	return succ;
@@ -126,11 +126,11 @@ void WallpaperChanger::deleteImagesFromDisk(const std::vector<qulonglong> &batch
 			batchIndexes.push_back(index->second);
 	}
 
-	adjustHistoryForObsoleteImages(batchIndexes);
 	_imageList.deleteFilesFromDisk(batchIndexes);
-	if (std::find(batchIndexes.begin(), batchIndexes.end(), _currentWPIdx) != batchIndexes.end())
+	adjustHistoryForObsoleteImages();
+	if (std::find(batchIDs.begin(), batchIDs.end(), _currentWPId) != batchIDs.end())
 	{
-		_currentWPIdx = invalid_index;
+		_currentWPId = invalid_id;
 		_signalWallpaperChanged.invoke(invalid_index);
 	}
 }
@@ -146,8 +146,8 @@ void WallpaperChanger::removeImages(const std::vector<qulonglong> &batchIDs)
 			batchIndexes.push_back(index->second);
 	}
 
-	adjustHistoryForObsoleteImages(batchIndexes);
 	_imageList.removeImages(batchIndexes);
+	adjustHistoryForObsoleteImages();
 }
 
 // Remove non-existent entries from list
@@ -206,14 +206,14 @@ int WallpaperChanger::timeLeft() const
 // Index of the currently set wallpaper (size_t_max if none from the list is set)
 size_t WallpaperChanger::currentWallpaper() const
 {
-	return _currentWPIdx;
+	return _indexById.count(_currentWPId) > 0 ? _indexById.at(_currentWPId) : invalid_index;
 }
 
 // Signal that image list has changed
 void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 {
-	_currentWPIdx = invalid_index;
-	_indexById.clear();
+	_currentWPId = invalid_id;
+	adjustHistoryForObsoleteImages();
 	for (size_t index = 0; index < _imageList.size(); ++index)
 	{
 		_indexById[_imageList[index].id()] = index;
@@ -227,7 +227,7 @@ void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 void WallpaperChanger::listCleared()
 {
 	_indexById.clear();
-	_currentWPIdx = invalid_index;
+	_currentWPId = invalid_id;
 
 	if (_bUpdatesEnabled)
 		_signalListCleared.invoke();
@@ -283,14 +283,18 @@ bool WallpaperChanger::setWallpaperImpl(size_t idx)
 }
 
 // Check if any of the images from a list provided are in history, adjust history if so (to prevent invalid history record)
-void WallpaperChanger::adjustHistoryForObsoleteImages(const std::vector<size_t> &batch)
+void WallpaperChanger::adjustHistoryForObsoleteImages()
 {
 	decltype(_previousWallPapers) newHistory;
-	for (auto it = _previousWallPapers.begin(); it != _previousWallPapers.end(); ++it)
+	for (size_t i = 0; i < _previousWallPapers.size(); ++i)
 	{
-		// If image being removed is in history - delete it from history
-		if (std::find(batch.begin(), batch.end(), *it) == batch.end())
-			newHistory.push_back(*it);
+		// If image is no longer present - delete it from history
+		for (size_t imageIndex = 0; imageIndex < _imageList.size(); ++imageIndex)
+			if (_imageList[imageIndex].id() == _previousWallPapers[i])
+			{
+				newHistory.addLatest(_previousWallPapers[i]);
+				break;
+			}
 	}
 
 	_previousWallPapers = newHistory;
@@ -342,35 +346,36 @@ bool WallpaperChanger::nextWallpaper()
 	if (numImages() <= 0)
 		return true;
 
-	if (_currentWPIdxInNavigationList >= _previousWallPapers.size() - 1 || _previousWallPapers.empty())
+	if (_previousWallPapers.empty() || _previousWallPapers.isAtEnd())
 	{
 		// Choosing new wallpaper
 		const bool randomize = CSettings().value(SETTINGS_RANDOMIZE, SETTINGS_DEFAULT_RANDOMIZE).toBool();
+		size_t newWpIndex = invalid_index;
 		if (randomize)
 		{
-			_currentWPIdx = ( ((size_t)rand() << 16) | rand() ) % _imageList.size();
+			newWpIndex = (((size_t)rand() << 16) | rand()) % _imageList.size();
 		}
 		else
 		{
-			_currentWPIdx = _currentWPIdx < _imageList.size() - 1 ? _currentWPIdx + 1 : 0;
+			size_t currentWpIndex = indexByID(_currentWPId);
+			newWpIndex = currentWpIndex < _imageList.size() - 1 ? currentWpIndex + 1 : 0;
 		}
-		_previousWallPapers.push_back(_currentWPIdx);
-		_currentWPIdxInNavigationList = _previousWallPapers.size() - 1;
+		_previousWallPapers.addLatest(_imageList[newWpIndex].id());
+		return setWallpaper(newWpIndex, false);
 	}
 	else
 	{
 		// Navigating through previously set wallpapers
-		_currentWPIdx = _previousWallPapers[++_currentWPIdxInNavigationList];
+		_currentWPId = _previousWallPapers.navigateForward();
+		return setWallpaper(indexByID(_currentWPId), false);
 	}
-
-	return setWallpaper(_currentWPIdx, false);
 }
 
-void WallpaperChanger::previousWallpaper  ()
+void WallpaperChanger::previousWallpaper()
 {
-	if (!_previousWallPapers.empty() && _currentWPIdxInNavigationList < _previousWallPapers.size() && (_currentWPIdxInNavigationList - 1) < _previousWallPapers.size())
+	if (!_previousWallPapers.empty() && !_previousWallPapers.isAtBeginning())
 	{
-		_currentWPIdx = _previousWallPapers[--_currentWPIdxInNavigationList];
-		setWallpaper(_currentWPIdx, false);
+		_currentWPId = _previousWallPapers.navigateBack();
+		setWallpaper(indexByID(_currentWPId), false);
 	}
 }
