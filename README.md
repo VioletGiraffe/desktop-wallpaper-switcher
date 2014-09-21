@@ -7,7 +7,7 @@ A cross-platform (Windows / Mac OS X / Linux) tool for cycling desktop wallpaper
 Should be straightforward for Windows, as long as you have Qt installed (works with both Qt 4 and Qt 5, x32 and x64). 
 
 ###Download
-Only Windows version is available for now (Win XP, Vista, 7, 8, 8.1; 32 and 64 bit compatible).
+Only Windows version is available for now (Win Vista, 7, 8, 8.1; 32 and 64 bit compatible).
 
 **<a href="https://github.com/VioletGiraffe/desktop-wallpaper-switcher/releases/latest">Get the latest release for Windows</a>**
 
