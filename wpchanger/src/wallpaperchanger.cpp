@@ -106,12 +106,17 @@ bool WallpaperChanger::setWallpaper( size_t idx, bool addToHistory /*= true*/ )
 
 	if (succ)
 	{
+		// Reset timer
+		_qTime.restart();
+		_qTime.start();
+
 		_currentWPId = _imageList[idx].id();
 		if (addToHistory)
 			_previousWallPapers.addLatest(_currentWPId);
 	}
 	else
 		qDebug() << "Failed to set wallpaper " << normalizeFileName(image(idx).imageFilePath());
+
 	return succ;
 }
 
@@ -207,6 +212,11 @@ int WallpaperChanger::timeLeft() const
 size_t WallpaperChanger::currentWallpaper() const
 {
 	return _indexById.count(_currentWPId) > 0 ? _indexById.at(_currentWPId) : invalid_index;
+}
+
+bool WallpaperChanger::stopped() const
+{
+	return _qTimer.isActive();
 }
 
 // Signal that image list has changed

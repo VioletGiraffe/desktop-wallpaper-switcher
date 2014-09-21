@@ -67,6 +67,8 @@ public:
 	// Index of the currently set wallpaper (size_t_max if none from the list is set)
 	size_t currentWallpaper() const;
 
+	bool stopped() const;
+
 // Notifications
 	// Signal that image list has changed
 	void listChanged(size_t index = invalid_index);

@@ -1,4 +1,5 @@
 rem set QTDIR=c:\Development\Qt\4.8.5\
+set QTDIR=k:\Qt\5\5.3\msvc2012_opengl\
 
 RMDIR  /S /Q binaries\
 
