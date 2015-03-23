@@ -5,6 +5,7 @@
 #include "thumbnailwidget/imagethumbnailwidget.h"
 #include "signals/signal.h"
 #include "imagebrowserwindow.h"
+#include "imagelist/cfilterdialog.h"
 
 #include <QMainWindow>
 #include <QProgressBar>
@@ -38,6 +39,10 @@ protected:
 	virtual void closeEvent(QCloseEvent * e);
 
 private slots:
+	// Launch the search UI
+	void search();
+	// Search the list by given filename pattern
+	void searchByFilename(QString name);
 	// Select duplicate entries in the list
 	void selectDuplicateEntries();
 	// Find and select duplicate files on disk
@@ -139,6 +144,7 @@ signals:
 private:
 	Ui::MainWindow              * ui;
 	QSystemTrayIcon               _trayIcon;
+	CFilterDialog                 _imageListFilterDialog;
 
 	ImageBrowserWindow            _browserWindow;
 

@@ -73,11 +73,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->_wpModeComboBox, SIGNAL(activated(int)), SLOT(displayModeChanged(int)));
 	connect(ui->actionBrowser, SIGNAL(triggered()), SLOT(openImageBrowser()));
 	connect(ui->actionSettings, SIGNAL(triggered()), SLOT(openSettings()));
+	connect(ui->actionSearch_images_by_file_name, SIGNAL(triggered()), SLOT(search()));
 	connect(ui->actionFind_duplicate_files_on_disk, SIGNAL(triggered()), SLOT(findDuplicateFiles()));
 	connect(ui->actionFind_duplicate_list_entries, SIGNAL(triggered()), SLOT(selectDuplicateEntries()));
 	connect(ui->actionRemove_Non_Existent_Entries, SIGNAL(triggered()), SLOT(removeNonExistingEntries()));
 	connect(ui->actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(ui->action_About, SIGNAL(triggered()), SLOT(onActionAboutTriggered()));
+
+	_imageListFilterDialog.setParent(ui->_imageList);
+	connect(&_imageListFilterDialog, SIGNAL(filterTextChanged(QString)), SLOT(searchByFilename(QString)));
 
 	setAcceptDrops(true);
 
@@ -287,6 +291,37 @@ void MainWindow::closeEvent(QCloseEvent *e)
 
 		if (!_bListSaved)
 			promptToSaveList();
+	}
+}
+
+// Launch the search UI
+void MainWindow::search()
+{
+	_imageListFilterDialog.display();
+}
+
+// Search the list by given filename pattern
+void MainWindow::searchByFilename(QString name)
+{
+	if (!name.isEmpty())
+	{
+		if (!name.startsWith("*"))
+			name.prepend("*");
+		if (!name.endsWith("*"))
+			name.append("*");
+
+		const auto matchingItems = ui->_imageList->findItems(name, Qt::MatchWildcard, FileNameColumn);
+
+		for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
+			ui->_imageList->topLevelItem(i)->setHidden(true);
+
+		for (auto& item : matchingItems)
+			item->setHidden(false);
+	}
+	else
+	{
+		for (int i = 0; i < ui->_imageList->topLevelItemCount(); ++i)
+			ui->_imageList->topLevelItem(i)->setHidden(false);
 	}
 }
 

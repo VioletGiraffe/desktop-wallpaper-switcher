@@ -354,6 +354,8 @@
     <property name="title">
      <string>&amp;List</string>
     </property>
+    <addaction name="actionSearch_images_by_file_name"/>
+    <addaction name="separator"/>
     <addaction name="actionRemove_Non_Existent_Entries"/>
     <addaction name="actionFind_duplicate_list_entries"/>
     <addaction name="actionFind_duplicate_files_on_disk"/>
@@ -400,7 +402,7 @@
   </widget>
   <action name="actionLoad_Image_List">
    <property name="text">
-    <string>&amp;Load Image List</string>
+    <string>&amp;Load Image List...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -416,12 +418,12 @@
   </action>
   <action name="actionSettings">
    <property name="text">
-    <string>&amp;Settings</string>
+    <string>&amp;Settings...</string>
    </property>
   </action>
   <action name="actionAdd_Images">
    <property name="text">
-    <string>&amp;Add Image(s)</string>
+    <string>&amp;Add Image(s)...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -429,12 +431,12 @@
   </action>
   <action name="action_About">
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;About...</string>
    </property>
   </action>
   <action name="actionSave_Image_List_As">
    <property name="text">
-    <string>Save &amp;Image List As</string>
+    <string>Save &amp;Image List As...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
@@ -442,7 +444,7 @@
   </action>
   <action name="actionBrowser">
    <property name="text">
-    <string>&amp;Browser</string>
+    <string>&amp;Browser...</string>
    </property>
    <property name="shortcut">
     <string>F2</string>
@@ -525,6 +527,14 @@
   <action name="actionExit">
    <property name="text">
     <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="actionSearch_images_by_file_name">
+   <property name="text">
+    <string>Search images by file name</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
  </widget>
