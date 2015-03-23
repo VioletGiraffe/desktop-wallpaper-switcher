@@ -8,7 +8,6 @@ DefaultDirName={pf}\Wallpaper Switcher
 DefaultGroupName=Wallpaper Switcher
 AllowNoIcons=true
 ;LicenseFile=license.rtf
-PrivilegesRequired=admin
 OutputDir=.
 OutputBaseFilename=WallpaperSwitcher
 
@@ -63,8 +62,6 @@ Name: {userdesktop}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe; T
 [Run]
 Filename: {app}\WallpaperSwitcher.exe; Description: {cm:LaunchProgram,Wallpaper Switcher}; Flags: nowait postinstall skipifsilent
 
-[UninstallRun]
-
 [Languages]
 Name: English; MessagesFile: compiler:Default.isl
 Name: German; MessagesFile: compiler:Languages\German.isl
@@ -85,59 +82,3 @@ Name: Polish; MessagesFile: compiler:Languages\Polish.isl
 Name: Portuguese; MessagesFile: compiler:Languages\Portuguese.isl
 Name: Slovenian; MessagesFile: compiler:Languages\Slovenian.isl
 Name: Spanish; MessagesFile: compiler:Languages\Spanish.isl
-
-[Registry]
-
-[Code]
-function GetUninstallString(): String;
-var
-  sUnInstPath: String;
-  sUnInstallString: String;
-begin
-  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
-  sUnInstallString := '';
-  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
-    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
-  Result := sUnInstallString;
-end;
-
-function IsUpgrade(): Boolean;
-begin
-  Result := (GetUninstallString() <> '');
-end;
-
-function UnInstallOldVersion(): Integer;
-var
-  sUnInstallString: String;
-  iResultCode: Integer;
-begin
-// Return Values:
-// 1 - uninstall string is empty
-// 2 - error executing the UnInstallString
-// 3 - successfully executed the UnInstallString
-
-  // default return value
-  Result := 0;
-
-  // get the uninstall string of the old app
-  sUnInstallString := GetUninstallString();
-  if sUnInstallString <> '' then begin
-    sUnInstallString := RemoveQuotes(sUnInstallString);
-    if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
-      Result := 3
-    else
-      Result := 2;
-  end else
-    Result := 1;
-end;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  if (CurStep=ssInstall) then
-  begin
-    if (IsUpgrade()) then
-    begin
-      UnInstallOldVersion();
-    end;
-  end;
-end;
