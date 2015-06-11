@@ -1,4 +1,5 @@
-installer/
+installer/WallpaperSwitcher*
+installer/binaries
 *Makefile*
 
 #################
