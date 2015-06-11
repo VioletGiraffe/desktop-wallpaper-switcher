@@ -43,8 +43,7 @@ bool ImageBrowserWindow::populate()
 	CTime start;
 	ui->_thumbnailBrowser->clear();
 
-	QListWidgetItem ** items = new QListWidgetItem* [_wpChanger.numImages()];
-	memset(items, 0, _wpChanger.numImages() * sizeof(QListWidgetItem*));
+	std::vector<QListWidgetItem*> items(_wpChanger.numImages(), nullptr);
 
 	//omp_set_num_threads(omp_get_num_threads() > 4 ? 4 : omp_get_num_threads());
 #pragma omp parallel for schedule(static,50)
@@ -64,9 +63,7 @@ bool ImageBrowserWindow::populate()
 			ui->_thumbnailBrowser->addItem(items[i]);
 	}
 
-	delete items;
-
-	qDebug() << "Populating thumb explorer with " << _wpChanger.numImages() << " items took " << (CTime() - start)/1000 << " s";
+	qDebug() << "Populating explorer with" << _wpChanger.numImages() << "thumbnails took" << (CTime() - start)/1000 << "seconds";
 	return true;
 }
 
@@ -98,16 +95,14 @@ void ImageBrowserWindow::showContextMenu(const QPoint &pos)
 			deleteSelectedImagesFromDisk();
 	}
 	else if (selectedItem == setAsWallpaper && ui->_thumbnailBrowser->selectedItems().size() > 0)
-		_wpChanger.setWallpaper(imageIdByPath(ui->_thumbnailBrowser->selectedItems().at(0)->data(Qt::UserRole).toString()));
+		_wpChanger.setWallpaper(_wpChanger.indexByID(imageIdByPath(ui->_thumbnailBrowser->selectedItems().at(0)->data(Qt::UserRole).toString())));
 }
 
 // Image double-clicked
 void ImageBrowserWindow::itemActivated(QListWidgetItem * item)
 {
 	if (item)
-	{
-		QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(imageIdByPath(item->data(Qt::UserRole).toString())).imageFilePath()));
-	}
+		QDesktopServices::openUrl(QUrl::fromLocalFile(_wpChanger.image(_wpChanger.indexByID(imageIdByPath(item->data(Qt::UserRole).toString()))).imageFilePath()));
 }
 
 void ImageBrowserWindow::zoomIn()
@@ -151,7 +146,7 @@ void ImageBrowserWindow::removeItemFromView( QListWidgetItem * item )
 }
 
 // Finds image index in the image list by its file path
-qulonglong ImageBrowserWindow::imageIdByPath(QString path) const
+qulonglong ImageBrowserWindow::imageIdByPath(const QString& path) const
 {
 	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
 		if (_wpChanger.image(i).imageFilePath() == path)

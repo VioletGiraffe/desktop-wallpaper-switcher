@@ -1,11 +1,11 @@
+TARGET   = WallpaperSwitcher
 DESTDIR  = ../bin
 TEMPLATE = app
-TARGET   = WallpaperSwitcher
 
-OBJECTS_DIR = ../build
-MOC_DIR     = ../build
-UI_DIR      = ../build
-RCC_DIR     = ../build
+OBJECTS_DIR = ../build/app
+MOC_DIR     = ../build/app
+UI_DIR      = ../build/app
+RCC_DIR     = ../build/app
 
 QT = gui core
 

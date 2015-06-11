@@ -42,7 +42,7 @@ private:
 	void removeItemFromView (QListWidgetItem * item);
 
 	// Finds image index in the image list by its file path
-	qulonglong imageIdByPath (QString path) const;
+	qulonglong imageIdByPath (const QString& path) const;
 
 private:
 	QShortcut              * _zoomInShortcut, * _zoomOutShortcut;
