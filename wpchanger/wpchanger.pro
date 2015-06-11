@@ -1,13 +1,14 @@
+TARGET = wpchanger
 DESTDIR = ../bin
 TEMPLATE = lib
 CONFIG += staticlib
 
 QT = core gui
 
-OBJECTS_DIR = ../build
-MOC_DIR = ../build
-UI_DIR = ../build
-RCC_DIR = ../build
+OBJECTS_DIR = ../build/wpchanger
+MOC_DIR     = ../build/wpchanger
+UI_DIR      = ../build/wpchanger
+RCC_DIR     = ../build/wpchanger
 
 HEADERS += \
 	src/wallpaperchanger.h \

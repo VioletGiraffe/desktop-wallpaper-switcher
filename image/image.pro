@@ -1,13 +1,14 @@
+TARGET = image
 DESTDIR = ../bin
 TEMPLATE = lib
 CONFIG += staticlib
 
 QT = gui core
 
-OBJECTS_DIR = ../build
-MOC_DIR     = ../build
-UI_DIR      = ../build
-RCC_DIR     = ../build
+OBJECTS_DIR = ../build/image
+MOC_DIR     = ../build/image
+UI_DIR      = ../build/image
+RCC_DIR     = ../build/image
 
 HEADERS += \
 	src/image.h
