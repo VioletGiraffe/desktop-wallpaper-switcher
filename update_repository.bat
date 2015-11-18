@@ -6,3 +6,7 @@ call init_submodules.bat
 cd qtutils
 git pull
 cd ..
+
+cd cpputils
+git pull
+cd ..

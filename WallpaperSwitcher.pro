@@ -1,12 +1,15 @@
 TEMPLATE = subdirs
 
-SUBDIRS = sub_app sub_wpchanger sub_utility sub_image sub_qtutils
+SUBDIRS = sub_app sub_wpchanger sub_utility sub_image sub_qtutils sub_cpputils
+
+sub_cpputils.subdir = cpputils
 
 sub_image.subdir = image
 
 sub_utility.subdir = utility
 
 sub_qtutils.subdir = qtutils
+sub_qtutils.depends = sub_cpputils
 
 sub_wpchanger.subdir = wpchanger
 sub_wpchanger.depends = sub_image sub_qtutils

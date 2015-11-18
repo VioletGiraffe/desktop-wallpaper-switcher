@@ -22,7 +22,8 @@ SOURCES += \
 INCLUDEPATH += \
 	../image/src \
 	../utility   \
-	../qtutils
+	../qtutils \
+	../cpputils
 
 LIBS += -L../bin -limage
 
