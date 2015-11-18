@@ -123,6 +123,8 @@ private:
 
 	static void listAllFilesInDirectoryTree(const QString& dirPath, std::vector<QString>& filePaths);
 
+	void updateWindowTitle();
+
 // Slots
 	// Image list was updated
 	void imageListChanged(size_t index);

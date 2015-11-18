@@ -18,7 +18,7 @@
 #include <QtAlgorithms>
 #include <QDebug>
 #include <QMimeData>
-#include <QString>
+#include <QStringBuilder>
 #include <QHeaderView>
 #include <QDesktopServices>
 #if QT_VERSION >= QT_VERSION_CHECK (5,0,0)
@@ -101,6 +101,8 @@ MainWindow::MainWindow(QWidget *parent) :
 			_currentListFileName = listFileName;
 			if (CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool())
 				_wpChanger.startSwitching();
+
+			updateWindowTitle();
 		}
 	}
 	else
@@ -138,7 +140,10 @@ void MainWindow::updateImageList(bool totalUpdate)
 	if (_wpChanger.numImages() > 0 && _previousListSize != 0)
 	{
 		if (_bListSaved && _previousListSize != _wpChanger.numImages())
+		{
 			_bListSaved = false;
+			updateWindowTitle();
+		}
 		_previousListSize = _wpChanger.numImages();
 	}
 
@@ -479,6 +484,7 @@ void MainWindow::dropEvent(QDropEvent * de)
 			{
 				_currentListFileName = mimeData->urls().at(0).path();
 				CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
+				updateWindowTitle();
 			}
 
 			break;
@@ -526,6 +532,7 @@ void MainWindow::displayModeChanged (int mode)
 	}
 
 	updateImageList(true);
+	updateWindowTitle();
 }
 
 // Image browser requested
@@ -600,6 +607,7 @@ void MainWindow::saveImageListAs()
 	{
 		_bListSaved = true;
 		CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
+		updateWindowTitle();
 	}
 }
 
@@ -614,7 +622,10 @@ void MainWindow::saveImageList()
 		QMessageBox::information(this, "Error saving image list!", "Error occurred while trying to save image list. Try saving to another file or folder.");
 	}
 	else
+	{
 		_bListSaved = true;
+		updateWindowTitle();
+	}
 }
 
 void MainWindow::loadImageList()
@@ -636,6 +647,7 @@ void MainWindow::loadImageList()
 			_bListSaved = true;
 			_previousListSize = _wpChanger.numImages();
 			CSettings().setValue(SETTINGS_IMAGE_LIST_FILE, _currentListFileName);
+			updateWindowTitle();
 		}
 	}
 }
@@ -734,6 +746,7 @@ void MainWindow::removeSelectedImages()
 
 	_wpChanger.removeImages(idsToRemove);
 	_bListSaved = false;
+	updateWindowTitle();
 }
 
 //Delete selected images from disk (and from the list if successful)
@@ -752,6 +765,20 @@ void MainWindow::deleteSelectedImagesFromDisk()
 
 	_wpChanger.deleteImagesFromDisk(idsToRemove);
 	_bListSaved = false;
+	updateWindowTitle();
+}
+
+void MainWindow::updateWindowTitle()
+{
+	QString title = "Wallpaper Changer";
+	if (!_currentListFileName.isEmpty())
+	{
+		if (!_bListSaved)
+			title.prepend("* ");
+		title = title % " - " % QFileInfo(_currentListFileName).fileName();
+	}
+
+	setWindowTitle(title);
 }
 
 void MainWindow::imageListChanged(size_t /*index*/)
