@@ -7,7 +7,6 @@ AppId=WallpaperSwitcher
 DefaultDirName={pf}\Wallpaper Switcher
 DefaultGroupName=Wallpaper Switcher
 AllowNoIcons=true
-;LicenseFile=license.rtf
 OutputDir=.
 OutputBaseFilename=WallpaperSwitcher
 
@@ -48,9 +47,6 @@ Source: binaries/Qt/platforms\*; DestDir: {app}\platforms; Flags: ignoreversion 
 
 ;MSVC binaries
 Source: binaries/msvcr/*; DestDir: {app}; Flags: ignoreversion;
-
-;License
-Source: license.rtf; DestDir: {app}; 
 
 [Icons]
 Name: {group}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe;

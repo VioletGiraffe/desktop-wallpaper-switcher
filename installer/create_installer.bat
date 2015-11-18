@@ -11,18 +11,12 @@ msbuild ..\WallpaperSwitcher.sln /t:Build /p:Configuration=Release;PlatformTools
 
 xcopy /R /Y ..\bin\WallpaperSwitcher.exe binaries\
 
-xcopy /R /Y %QTDIR32%\bin\Qt5Core.dll binaries\Qt\
-xcopy /R /Y %QTDIR32%\bin\Qt5Gui.dll binaries\Qt\
-xcopy /R /Y %QTDIR32%\bin\Qt5Widgets.dll binaries\Qt\
+SETLOCAL
+SET PATH=%QTDIR32%\bin\
+%QTDIR32%\bin\windeployqt.exe --dir binaries\Qt --force --no-translations --release --no-compiler-runtime --no-angle binaries\WallpaperSwitcher.exe
+ENDLOCAL
 
-xcopy /R /Y %QTDIR32%\bin\icu*.dll binaries\Qt\
-
-xcopy /R /Y %QTDIR32%\plugins\imageformats\qgif.dll binaries\Qt\imageformats\
-xcopy /R /Y %QTDIR32%\plugins\imageformats\qico.dll binaries\Qt\imageformats\
-xcopy /R /Y %QTDIR32%\plugins\imageformats\qjpeg.dll binaries\Qt\imageformats\
-xcopy /R /Y %QTDIR32%\plugins\imageformats\qtiff.dll binaries\Qt\imageformats\
-
-xcopy /R /Y %QTDIR32%\plugins\platforms\qwindows.dll binaries\Qt\platforms\
+del binaries\Qt\opengl*.*
 
 xcopy /R /Y %SystemRoot%\SysWOW64\msvcr120.dll binaries\msvcr\
 xcopy /R /Y %SystemRoot%\SysWOW64\msvcp120.dll binaries\msvcr\
