@@ -1,12 +1,9 @@
+REM Update the main repo
 git pull
 
-REM In case there are new submodules that have not yet been cloned
-call init_submodules.bat
+REM Init the subrepos
+git submodule update --init --recursive
+git submodule foreach --recursive "git checkout master"
 
-cd qtutils
-git pull
-cd ..
-
-cd cpputils
-git pull
-cd ..
+REM Update the subrepos
+git submodule foreach --recursive "git pull"
