@@ -1,26 +1,43 @@
 TARGET   = WallpaperSwitcher
-DESTDIR  = ../bin
 TEMPLATE = app
 
-OBJECTS_DIR = ../build/app
-MOC_DIR     = ../build/app
-UI_DIR      = ../build/app
-RCC_DIR     = ../build/app
+QT = gui core widgets
 
 mac* | linux*{
-    CONFIG(release, debug|release):CONFIG += Release
-    CONFIG(debug, debug|release):CONFIG += Debug
+	CONFIG(release, debug|release):CONFIG += Release
+	CONFIG(debug, debug|release):CONFIG += Debug
 }
 
 Release:OUTPUT_DIR=release
 Debug:OUTPUT_DIR=debug
 
-QT = gui core
+win*{
+	QMAKE_CXXFLAGS += /MP /wd4251
+	QMAKE_CXXFLAGS_WARN_ON = -W4
+	DEFINES += WIN32_LEAN_AND_MEAN NOMINMAX _SCL_SECURE_NO_WARNINGS
 
-#check Qt version
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+	QMAKE_LFLAGS += /DEBUG:FASTLINK
 
-LIBS += -L../bin -L../bin/$${OUTPUT_DIR} -lutility -limage -lwpchanger -lqtutils -lcpputils
+	Debug:QMAKE_LFLAGS += /INCREMENTAL
+	Release:QMAKE_LFLAGS += /OPT:REF /OPT:ICF
+}
+
+mac* | linux* {
+	QMAKE_CFLAGS   += -pedantic-errors -std=c99
+	QMAKE_CXXFLAGS += -pedantic-errors
+	QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-c++11-extensions -Wno-local-type-template-args -Wno-deprecated-register
+
+	Release:DEFINES += NDEBUG=1
+	Debug:DEFINES += _DEBUG
+}
+
+DESTDIR  = ../bin/$${OUTPUT_DIR}
+OBJECTS_DIR = ../build/$${OUTPUT_DIR}/$${TARGET}
+MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
+UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
+RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
+
+LIBS += -L$${DESTDIR} -lutility -limage -lwpchanger -lqtutils -lcpputils
 
 INCLUDEPATH +=  ../image/src \
 				../wpchanger/src \
@@ -28,12 +45,6 @@ INCLUDEPATH +=  ../image/src \
 				../qtutils \
 				../cpputils \
 				src/qt/
-
-win*{
-	QMAKE_CXXFLAGS += /openmp /MP
-	CXXFLAGS += /favor:blend
-	DEFINES += WIN32_LEAN_AND_MEAN NOMINMAX
-}
 
 include (src/qt/app.pri)
 include (src/qt/aboutdialog/aboutdialog.pri)
