@@ -12,8 +12,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
 	ui->_spSwitchInterval->setValue(CSettings().value(SETTINGS_INTERVAL, SETTINGS_DEFAULT_INTERVAL).toInt());
 	ui->_cbRandomize->setChecked(CSettings().value(SETTINGS_RANDOMIZE, SETTINGS_DEFAULT_RANDOMIZE).toBool());
 	ui->_cbAutostartSwitching->setChecked(CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool());
-
-	connect(this, SIGNAL(accepted()), SLOT(accepted()));
 }
 
 SettingsDialog::~SettingsDialog()
@@ -21,7 +19,7 @@ SettingsDialog::~SettingsDialog()
 	delete ui;
 }
 
-void SettingsDialog::accepted()
+void SettingsDialog::accept()
 {
 	CSettings s;
 	s.setValue(SETTINGS_INTERVAL, ui->_spSwitchInterval->value());

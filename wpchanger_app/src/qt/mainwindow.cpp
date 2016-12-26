@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "aboutdialog/aboutdialog.h"
+#include "aboutdialog/caboutdialog.h"
 
 #include "imagelist/qtimagelistitem.h"
 #include "settingsdialog.h"
@@ -21,9 +21,7 @@
 #include <QStringBuilder>
 #include <QHeaderView>
 #include <QDesktopServices>
-#if QT_VERSION >= QT_VERSION_CHECK (5,0,0)
 #include <QStandardPaths>
-#endif
 
 #include <thread>
 
@@ -410,17 +408,13 @@ void MainWindow::deleteCurrentWp()
 //Request to show "About" window
 void MainWindow::onActionAboutTriggered()
 {
-	AboutDialog(this).exec();
+	CAboutDialog(this).exec();
 }
 
 //Triggers a dialog window to add images to a list
 void MainWindow::onAddImagesTriggered()
 {
-#if QT_VERSION >= QT_VERSION_CHECK (5,0,0)
 	const QString location = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
-#else
-	const QString location = QDesktopServices::storageLocation(QDesktopServices::PicturesLocation);
-#endif
 
 	QStringList images = QFileDialog::getOpenFileNames(
 		this,

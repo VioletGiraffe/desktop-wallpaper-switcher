@@ -15,7 +15,6 @@ class WallpaperChanger;
 
 class ImageBrowserWindow : public QMainWindow
 {
-	Q_OBJECT
 
 public:
 	explicit ImageBrowserWindow(QWidget *parent = 0);
@@ -27,9 +26,9 @@ public:
 	void deleteSelectedImagesFromDisk();
 
 protected:
-	virtual bool event(QEvent * event);
+	bool event(QEvent * event) override;
 
-private slots:
+private:
 	void showContextMenu(const QPoint& pos);
 	// Image double-clicked
 	void itemActivated(QListWidgetItem * item);

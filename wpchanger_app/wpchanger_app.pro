@@ -47,7 +47,6 @@ INCLUDEPATH +=  ../image/src \
 				src/qt
 
 include (src/qt/app.pri)
-include (src/qt/aboutdialog/aboutdialog.pri)
 include (src/qt/thumbnailwidget/thumbnail.pri)
 include (src/qt/imagelist/imagelist.pri)
 include (src/qt/thumbnailexplorer/thumbnailexplorer.pri)

@@ -3,11 +3,11 @@
 #include "settings/csettings.h"
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QFile>
-#include <QStringList>
 #include <QFileInfo>
 #include <QSettings>
-#include <QDebug>
+#include <QStringList>
 
 #include <algorithm>
 #include <time.h>
@@ -17,8 +17,6 @@
 #pragma comment(lib, "user32.lib")
 #endif
 
-#include <assert.h>
-
 #define TIMER_INTERVAL 1000
 
 WallpaperChanger::WallpaperChanger():
@@ -27,7 +25,9 @@ WallpaperChanger::WallpaperChanger():
 {
 	_qTimer.setInterval(TIMER_INTERVAL);
 	_qTimer.setSingleShot(false);
-	connect(&_qTimer, SIGNAL(timeout()), SLOT(onTimeout()));
+	QObject::connect(&_qTimer, &QTimer::timeout, [this]() {
+		onTimeout();
+	});
 
 	srand(time(0));
 
@@ -45,13 +45,8 @@ WallpaperChanger& WallpaperChanger::instance()
 
 size_t WallpaperChanger::indexByID(qulonglong id) const
 {
-	if (_indexById.count(id) > 0)
-		return _indexById.at(id);
-	else
-	{
-		assert(_indexById.count(id) > 0);
-		return invalid_index;
-	}
+	assert_and_return_r(_indexById.count(id) > 0, invalid_index);
+	return _indexById.at(id);
 }
 
 qulonglong WallpaperChanger::idByIndex(size_t index) const

@@ -30,8 +30,8 @@ ImageBrowserWindow::ImageBrowserWindow(QWidget *parent) :
 	_zoomInShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this, SLOT(zoomIn()));
 	_zoomOutShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this, SLOT(zoomOut()));
 
-	connect(ui->_thumbnailBrowser, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showContextMenu(const QPoint&)));
-	connect(ui->_thumbnailBrowser, SIGNAL(itemActivated(QListWidgetItem*)), SLOT(itemActivated(QListWidgetItem*)));
+	connect(ui->_thumbnailBrowser, &QListWidget::customContextMenuRequested, this, &ImageBrowserWindow::showContextMenu);
+	connect(ui->_thumbnailBrowser, &QListWidget::itemActivated, this, &ImageBrowserWindow::itemActivated);
 }
 
 ImageBrowserWindow::~ImageBrowserWindow()

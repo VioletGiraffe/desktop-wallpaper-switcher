@@ -17,10 +17,8 @@ struct WallpaperWatcher {
 	virtual void listCleared() = 0;
 };
 
-class WallpaperChanger : private QObject, public ImageListWatcher, public CallbackCaller<WallpaperWatcher>
+class WallpaperChanger : public ImageListWatcher, public CallbackCaller<WallpaperWatcher>
 {
-	Q_OBJECT
-
 private:
 	WallpaperChanger();
 
@@ -85,10 +83,9 @@ public:
 	// Signal that image list has been cleared
 	void listCleared() override;
 
-private slots:
+private:
 	void onTimeout();
 
-private:
 	// Sets the image as a wallpaper
 	bool setWallpaperImpl (size_t idx);
 
