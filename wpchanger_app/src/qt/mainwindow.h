@@ -54,6 +54,7 @@ private slots:
 	void removeCurrentWp();
 	// Deletes current wallpaper from disk
 	void deleteCurrentWp();
+	void deleteCurrentAndSwitchToNext();
 	// Request to show "About" window
 	void onActionAboutTriggered();
 	// Triggers a dialog window to add images to a list
@@ -135,9 +136,6 @@ private:
 	void promptToSaveList();
 
 	void updateWindowTitle();
-
-// UI setup
-	void initToolbar();
 
 signals:
 	// To update UI from within worker threads

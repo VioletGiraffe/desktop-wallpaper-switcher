@@ -367,6 +367,7 @@
     <addaction name="separator"/>
     <addaction name="actionRemove_Current_Image_from_List"/>
     <addaction name="actionDelete_Current_Wallpaper_From_Disk"/>
+    <addaction name="actionDelete_Current_Wallpaper_And_Switch_To_Next"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuList"/>
@@ -397,8 +398,7 @@
    <addaction name="actionStop_Switching"/>
    <addaction name="actionStart_switching"/>
    <addaction name="separator"/>
-   <addaction name="actionRemove_Current_Image_from_List"/>
-   <addaction name="actionDelete_Current_Wallpaper_From_Disk"/>
+   <addaction name="actionDelete_Current_Wallpaper_And_Switch_To_Next"/>
   </widget>
   <action name="actionLoad_Image_List">
    <property name="text">
@@ -535,6 +535,15 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionDelete_Current_Wallpaper_And_Switch_To_Next">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/icons/resources/trash.png</normaloff>:/icons/resources/trash.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete Current Wallpaper And Switch To Next</string>
    </property>
   </action>
  </widget>

@@ -41,8 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	initToolbar();
-
 	_trayIcon.setParent(this);
 	_trayIcon.show();
 	connect(&_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
@@ -74,6 +72,17 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->actionRemove_Non_Existent_Entries, SIGNAL(triggered()), SLOT(removeNonExistingEntries()));
 	connect(ui->actionExit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	connect(ui->action_About, SIGNAL(triggered()), SLOT(onActionAboutTriggered()));
+
+	connect(ui->actionPrevious_Wallpaper, SIGNAL(triggered()), SLOT(previousWallpaper()));
+	connect(ui->actionNext_wallpaper, SIGNAL(triggered()), SLOT(nextWallpaper()));
+	connect(ui->actionStop_Switching, SIGNAL(triggered()), SLOT(stopSwitching()));
+	connect(ui->actionStart_switching, SIGNAL(triggered()), SLOT(resumeSwitching()));
+
+	connect(ui->actionRemove_Current_Image_from_List, SIGNAL(triggered()), SLOT(removeCurrentWp()));
+	connect(ui->actionDelete_Current_Wallpaper_From_Disk, SIGNAL(triggered()), SLOT(deleteCurrentWp()));
+	connect(ui->actionDelete_Current_Wallpaper_And_Switch_To_Next, &QAction::triggered, this, &MainWindow::deleteCurrentAndSwitchToNext);
+
+	ui->actionStart_switching->setChecked(CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool());
 
 	_imageListFilterDialog.setParent(ui->_imageList);
 	_imageListFilterDialog.hide();
@@ -401,9 +410,13 @@ void MainWindow::removeCurrentWp()
 void MainWindow::deleteCurrentWp()
 {
 	if (_wpChanger.currentWallpaper() != invalid_index)
-	{
 		_wpChanger.deleteImagesFromDisk(std::vector<qulonglong>(1, _wpChanger.idByIndex(_wpChanger.currentWallpaper())));
-	}
+}
+
+void MainWindow::deleteCurrentAndSwitchToNext()
+{
+	deleteCurrentWp();
+	nextWallpaper();
 }
 
 //Request to show "About" window
@@ -813,19 +826,4 @@ void MainWindow::timeToNextSwitch(size_t seconds)
 
 void MainWindow::wallpaperAdded(size_t)
 {
-
-}
-
-// UI setup
-void MainWindow::initToolbar()
-{
-	connect (ui->actionPrevious_Wallpaper, SIGNAL(triggered()), SLOT(previousWallpaper()));
-	connect (ui->actionNext_wallpaper, SIGNAL(triggered()), SLOT(nextWallpaper()));
-	connect (ui->actionStop_Switching, SIGNAL(triggered()), SLOT(stopSwitching()));
-	connect (ui->actionStart_switching, SIGNAL(triggered()), SLOT(resumeSwitching()));
-
-	connect (ui->actionRemove_Current_Image_from_List, SIGNAL(triggered()), SLOT(removeCurrentWp()));
-	connect (ui->actionDelete_Current_Wallpaper_From_Disk, SIGNAL(triggered()), SLOT(deleteCurrentWp()));
-
-	ui->actionStart_switching->setChecked(CSettings().value(SETTINGS_START_SWITCHING_ON_STARTUP, SETTINGS_DEFAULT_AUTOSTART).toBool());
 }

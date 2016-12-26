@@ -6,5 +6,6 @@
         <file>resources/remove.png</file>
         <file>resources/start.png</file>
         <file>resources/stop.png</file>
+        <file>resources/trash.png</file>
     </qresource>
 </RCC>
