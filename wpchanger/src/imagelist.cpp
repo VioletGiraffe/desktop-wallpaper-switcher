@@ -3,9 +3,9 @@
 #include <QDebug>
 #include <QFile>
 
+#include <algorithm>
 #include <fstream>
 #include <string>
-#include <algorithm>
 
 ImageList::ImageList()
 {
@@ -19,7 +19,7 @@ size_t ImageList::size() const
 void ImageList::addImage(const Image &image)
 {
 	_list.push_back(image);
-	_signalListChanged.invoke(size() - 1);
+	INVOKE_CALLBACK(listChanged, size() - 1);
 }
 
 void ImageList::removeImages(const std::vector<size_t> &indexes)
@@ -33,12 +33,12 @@ void ImageList::removeImages(const std::vector<size_t> &indexes)
 	}
 	_list = newList;
 
-	_signalListChanged.invoke(invalid_index);
+	INVOKE_CALLBACK(listChanged, invalid_index);
 }
 
 void ImageList::clear()
 {
-	_signalListCleared.invoke();
+	INVOKE_CALLBACK(listCleared);
 	_list.clear();
 }
 
@@ -100,7 +100,7 @@ bool ImageList::loadList( const QString& filename )
 		file.read(path, pathLength);
 	}
 
-	_signalListChanged.invoke(invalid_index);
+	INVOKE_CALLBACK(listChanged, invalid_index);
 	return true;
 }
 
@@ -128,9 +128,10 @@ bool ImageList::deleteFilesFromDisk(const std::vector<size_t> &indexes)
 			}
 		}
 	}
+
 	_list = newList;
 
-	_signalListChanged.invoke(invalid_index);
+	INVOKE_CALLBACK(listChanged, invalid_index);
 
 	return true;
 }

@@ -1,16 +1,18 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "wallpaperchanger.h"
 #include "imagelist/qtimagelistitem.h"
 #include "thumbnailwidget/imagethumbnailwidget.h"
-#include "signals/signal.h"
 #include "imagebrowserwindow.h"
+
 #include "imagelist/cfilterdialog.h"
 
+#include <QLabel>
 #include <QMainWindow>
 #include <QProgressBar>
-#include <QLabel>
 #include <QSystemTrayIcon>
+
 #include <vector>
 #include <map>
 
@@ -18,10 +20,9 @@ namespace Ui {
 	class MainWindow;
 }
 
-class QLabel;
 class WallpaperChanger;
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public WallpaperWatcher
 {
 	Q_OBJECT
 
@@ -97,6 +98,18 @@ private slots:
 // Progress notifications
 	void updateProgress(int percent, bool show, QString text);
 
+
+// Slots
+	// Image list was updated
+	void listChanged(size_t index) override;
+	// Image list was cleared
+	void listCleared() override;
+	// Current wallpaper changed
+	void wallpaperChanged(size_t index) override;
+	// Time until next switch
+	void timeToNextSwitch(size_t seconds) override;
+	void wallpaperAdded(size_t) override;
+
 private:
 	void selectImage (qulonglong id);
 
@@ -121,19 +134,7 @@ private:
 
 	void promptToSaveList();
 
-	static void listAllFilesInDirectoryTree(const QString& dirPath, std::vector<QString>& filePaths);
-
 	void updateWindowTitle();
-
-// Slots
-	// Image list was updated
-	void imageListChanged(size_t index);
-	// Image list was cleared
-	void imageListCleared();
-	// Current wallpaper changed
-	void wallpaperChanged(size_t index);
-	// Time until next switch
-	void timeToNextSwitch(size_t seconds);
 
 // UI setup
 	void initToolbar();
@@ -160,11 +161,6 @@ private:
 	QLabel                        _statusBarNumImages;
 
 	size_t                        _timeToSwitch;
-
-	Slot                          _slotImageListChanged;
-	Slot                          _slotImageListCleared;
-	Slot                          _slotWallpaperChanged;
-	Slot                          _slotTimeToNextSwitchChanged;
 
 	bool                          _bListSaved;
 	size_t                        _previousListSize; // Is used to determine that the list was edited

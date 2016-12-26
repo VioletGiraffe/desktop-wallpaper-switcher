@@ -2,7 +2,6 @@
 #define WALLPAPERCHANGER_H
 
 #include "imagelist.h"
-#include "signals/signal.h"
 #include "historylist/chistorylist.h"
 
 #include <map>
@@ -10,7 +9,15 @@
 #include <QTime>
 #include <QTimer>
 
-class WallpaperChanger : private QObject
+struct WallpaperWatcher {
+	virtual void wallpaperChanged(size_t) = 0;
+	virtual void wallpaperAdded(size_t) = 0;
+	virtual void timeToNextSwitch(size_t) = 0;
+	virtual void listChanged(size_t) = 0;
+	virtual void listCleared() = 0;
+};
+
+class WallpaperChanger : private QObject, public ImageListWatcher, public CallbackCaller<WallpaperWatcher>
 {
 	Q_OBJECT
 
@@ -70,19 +77,13 @@ public:
 	bool stopped() const;
 
 // Notifications
+	void enableListUpdateCallbacks(bool enable = true);
+
+// Listeners
 	// Signal that image list has changed
-	void listChanged(size_t index = invalid_index);
+	void listChanged(size_t index) override;
 	// Signal that image list has been cleared
-	void listCleared();
-
-public /*signals*/:
-	void enableListUpdateCallbacks (bool enable = true);
-	Signal1<size_t> _signalWallpaperChanged;
-	Signal1<size_t> _wallpaperAdded;
-	Signal1<size_t> _signalTimeToNextSwitch;
-	Signal1<size_t> _signalListChanged;
-	Signal0          _signalListCleared;
-
+	void listCleared() override;
 
 private slots:
 	void onTimeout();
@@ -106,11 +107,9 @@ private:
 	QTimer                   _qTimer;
 	// Time since last switch
 	QTime                    _qTime;
-	Slot                     _slotListChanged;
-	Slot                     _slotListCleared;
 
 private:
-	static QString normalizeFileName(const QString filename);
+	static QString normalizeFileName(QString filename);
 };
 
 #endif // WALLPAPERCHANGER_H

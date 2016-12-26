@@ -38,7 +38,7 @@ public:
 	const QString& imageFileFolder () const;
 	const QString& imageFileName () const;
 	QImage constructQImageObject () const;
-	ImgParams params() const;
+	const ImgParams& params() const;
 
 	//
 	WPOPTIONS stretchMode () const;

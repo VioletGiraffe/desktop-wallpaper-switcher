@@ -100,7 +100,7 @@ QImage Image::constructQImageObject() const
 	return qImg;
 }
 
-ImgParams Image::params() const
+const ImgParams& Image::params() const
 {
 	return _params;
 }

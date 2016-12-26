@@ -37,14 +37,14 @@ MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
 RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
-LIBS += -L$${DESTDIR} -lutility -limage -lwpchanger -lqtutils -lcpputils
+LIBS += -L$${DESTDIR} -limage -lwpchanger -lqtutils -lcpputils
 
 INCLUDEPATH +=  ../image/src \
 				../wpchanger/src \
-				../utility \
+				../cpp-template-utils \
 				../qtutils \
 				../cpputils \
-				src/qt/
+				src/qt
 
 include (src/qt/app.pri)
 include (src/qt/aboutdialog/aboutdialog.pri)

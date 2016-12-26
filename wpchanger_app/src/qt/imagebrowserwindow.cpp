@@ -1,8 +1,9 @@
 #include "imagebrowserwindow.h"
 #include "imagelist.h"
 #include "wallpaperchanger.h"
+#include "system/ctimeelapsed.h"
+
 #include "ui_imagebrowserwindow.h"
-#include "time/ctime.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -40,7 +41,8 @@ ImageBrowserWindow::~ImageBrowserWindow()
 
 bool ImageBrowserWindow::populate()
 {
-	CTime start;
+	CTimeElapsed stopWatch(true);
+
 	ui->_thumbnailBrowser->clear();
 
 	std::vector<QListWidgetItem*> items(_wpChanger.numImages(), nullptr);
@@ -63,7 +65,7 @@ bool ImageBrowserWindow::populate()
 			ui->_thumbnailBrowser->addItem(items[i]);
 	}
 
-	qDebug() << "Populating explorer with" << _wpChanger.numImages() << "thumbnails took" << (CTime() - start)/1000 << "seconds";
+	qDebug() << "Populating explorer with" << _wpChanger.numImages() << "thumbnails took" << stopWatch.elapsed<std::chrono::seconds>() << "seconds";
 	return true;
 }
 
@@ -152,5 +154,5 @@ qulonglong ImageBrowserWindow::imageIdByPath(const QString& path) const
 		if (_wpChanger.image(i).imageFilePath() == path)
 			return _wpChanger.image(i).id();
 
-	return -1;
+	return std::numeric_limits<qulonglong>::max();
 }

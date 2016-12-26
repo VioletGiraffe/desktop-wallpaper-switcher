@@ -5,8 +5,8 @@
 #include "imagelist/qtimagelistitem.h"
 #include "settingsdialog.h"
 #include "settings.h"
-#include "wallpaperchanger.h"
 #include "settings/csettings.h"
+#include "system/ctimeelapsed.h"
 
 #include <QFileDialog>
 #include <QTreeView>
@@ -26,9 +26,6 @@
 #endif
 
 #include <thread>
-
-#include <assert.h>
-#include "time/ctime.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -85,10 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	setAcceptDrops(true);
 
-	_slotImageListChanged = _wpChanger._signalListChanged.connect(this, &MainWindow::imageListChanged);
-	_slotImageListCleared = _wpChanger._signalListCleared.connect(this, &MainWindow::imageListCleared);
-	_slotWallpaperChanged = _wpChanger._signalWallpaperChanged.connect(this, &MainWindow::wallpaperChanged);
-	_slotTimeToNextSwitchChanged = _wpChanger._signalTimeToNextSwitch.connect(this, &MainWindow::timeToNextSwitch);
+	_wpChanger.addSubscriber(this);
 	timeToNextSwitch(_wpChanger.interval());
 
 	connect(ui->_imageList, SIGNAL(customContextMenuRequested(const QPoint&)), SLOT(showImageListContextMenu(const QPoint&)));
@@ -135,7 +129,7 @@ void MainWindow::setStatusBarMessage( const QString& msg )
 void MainWindow::updateImageList(bool totalUpdate)
 {
 	disconnect(ui->_imageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(onImgSelected(QTreeWidgetItem*,QTreeWidgetItem*)));
-	CTime start;
+	CTimeElapsed stopWatch(true);
 
 	if (_wpChanger.numImages() > 0 && _previousListSize != 0)
 	{
@@ -167,10 +161,10 @@ void MainWindow::updateImageList(bool totalUpdate)
 			QtImageListItem * item =  new QtImageListItem(_wpChanger.image(i), _wpChanger.currentWallpaper() == i);
 			if (!_wpChanger.imageExists(i))
 			{
-				for (int i = 0; i < ui->_imageList->columnCount(); ++i)
+				for (int coulmn = 0; coulmn < ui->_imageList->columnCount(); ++coulmn)
 				{
-					item->setBackgroundColor(i, QColor(Qt::red));
-					item->setTextColor(i, QColor(Qt::white));
+					item->setBackgroundColor(coulmn, QColor(Qt::red));
+					item->setTextColor(coulmn, QColor(Qt::white));
 				}
 			}
 
@@ -192,7 +186,7 @@ void MainWindow::updateImageList(bool totalUpdate)
 	}
 
 	// Marking the current WP
-	assert(_wpChanger.currentWallpaper() == invalid_index || newImageListWidgetItems.count(_wpChanger.image(_wpChanger.currentWallpaper()).id()) > 0);
+	assert_r(_wpChanger.currentWallpaper() == invalid_index || newImageListWidgetItems.count(_wpChanger.image(_wpChanger.currentWallpaper()).id()) > 0);
 	if (_wpChanger.currentWallpaper() != invalid_index)
 		newImageListWidgetItems[_wpChanger.image(_wpChanger.currentWallpaper()).id()]->setCurrent();
 
@@ -200,8 +194,7 @@ void MainWindow::updateImageList(bool totalUpdate)
 	_imageListWidgetItems = newImageListWidgetItems;
 
 	const int topLevelItemCount = ui->_imageList->topLevelItemCount();
-	Q_UNUSED(topLevelItemCount);
-	assert(_imageListWidgetItems.size() == topLevelItemCount);
+	assert_r(_imageListWidgetItems.size() == (size_t)topLevelItemCount);
 
 	for (int column = 0; column < ui->_imageList->columnCount(); ++column)
 	{
@@ -210,7 +203,7 @@ void MainWindow::updateImageList(bool totalUpdate)
 
 	connect(ui->_imageList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(onImgSelected(QTreeWidgetItem*,QTreeWidgetItem*)));
 	_statusBarNumImages.setText(QString ("%1 images in the list").arg(_wpChanger.numImages()));
-	qDebug() << "Updating list of " << _wpChanger.numImages() << " items took " << (CTime() - start) / 1000.0f <<"sec";
+	qDebug() << "Updating list of " << _wpChanger.numImages() << " items took " << stopWatch.elapsed() / 1000.0f <<"sec";
 }
 
 void MainWindow::addImagesFromDirecoryRecursively(const QString& path)
@@ -437,7 +430,7 @@ void MainWindow::onAddImagesTriggered()
 
 	if (! (images.empty() ))
 	{
-		CTime start;
+		CTimeElapsed stopWatch(true);
 		QStringList::const_iterator it = images.begin();
 		for (; it != images.end(); ++it)
 		{
@@ -448,8 +441,7 @@ void MainWindow::onAddImagesTriggered()
 		ui->ImageThumbWidget->displayImage(images.back());
 		ui->ImageThumbWidget->update();
 
-		CTime stop;
-		qDebug() << "Opening " << images.size() << "items took " << (stop - start) / 1000.0f <<"secs";
+		qDebug() << "Opening " << images.size() << "items took " << stopWatch.elapsed() / 1000.0f <<"secs";
 	}
 }
 
@@ -468,7 +460,7 @@ void MainWindow::onImgSelected(QTreeWidgetItem* current, QTreeWidgetItem* /*prev
 
 void MainWindow::dropEvent(QDropEvent * de)
 {
-	CTime start;
+	CTimeElapsed stopWatch(true);
 	const QMimeData * mimeData = de->mimeData();
 	_wpChanger.enableListUpdateCallbacks(false);
 
@@ -496,7 +488,7 @@ void MainWindow::dropEvent(QDropEvent * de)
 	_wpChanger.enableListUpdateCallbacks(true);
 	updateImageList(false);
 
-	qDebug() << "Dropping " << mimeData->urls().size() << "Items took " << (CTime() - start) / 1000.0f <<"secs";
+	qDebug() << "Dropping " << mimeData->urls().size() << "Items took " << stopWatch.elapsed() / 1000.0f <<"secs";
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -520,7 +512,7 @@ void MainWindow::onWPDblClick( QModelIndex )
 //Wallpaper display mode changed
 void MainWindow::displayModeChanged (int mode)
 {
-	assert (mode >= 0 && mode <= SYSTEM_DEFAULT);
+	assert_r(mode >= 0 && mode <= SYSTEM_DEFAULT);
 
 	_bListSaved = false;
 	QList<QTreeWidgetItem*> selected = ui->_imageList->selectedItems();
@@ -571,7 +563,7 @@ void MainWindow::showImageListContextMenu(const QPoint& pos)
 	}
 	else if (selectedItem)
 	{
-		assert(!"Unhandled menu item activated");
+		assert_unconditional_r("Unhandled menu item activated");
 	}
 }
 
@@ -781,13 +773,13 @@ void MainWindow::updateWindowTitle()
 	setWindowTitle(title);
 }
 
-void MainWindow::imageListChanged(size_t /*index*/)
+void MainWindow::listChanged(size_t /*index*/)
 {
 	updateImageList(false);
 }
 
 // Image list was cleared
-void MainWindow::imageListCleared()
+void MainWindow::listCleared()
 {
 	updateImageList(true);
 }
@@ -822,6 +814,11 @@ void MainWindow::timeToNextSwitch(size_t seconds)
 	seconds -= min * 60;
 	const int hr = int (seconds / 3600);
 	_statusBarTimeToSwitchLabel.setText(QString("%1:%2:%3").arg(hr, 2, 10, QChar('0') ).arg(min, 2, 10, QChar('0')).arg(sec, 2, 10, QChar('0')));
+}
+
+void MainWindow::wallpaperAdded(size_t)
+{
+
 }
 
 // UI setup

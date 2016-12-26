@@ -47,7 +47,7 @@ SOURCES += \
 
 INCLUDEPATH += \
 	../image/src \
-	../utility   \
+	../cpp-template-utils \
 	../qtutils \
 	../cpputils
 

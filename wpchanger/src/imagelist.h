@@ -1,16 +1,20 @@
-#ifndef IMAGELIST_H
-#define IMAGELIST_H
+#pragma once
 
 #include "image.h"
-#include "signals/signal.h"
+#include "utility/callback_caller.hpp"
 
-#include <vector>
 #include <limits>
+#include <vector>
 
 const size_t invalid_index = std::numeric_limits<size_t>().max();
 const qulonglong invalid_id = std::numeric_limits<qulonglong>().max();
 
-class ImageList
+struct ImageListWatcher {
+	virtual void listCleared() = 0;
+	virtual void listChanged(size_t index) = 0;
+};
+
+class ImageList : public CallbackCaller<ImageListWatcher>
 {
 public:
 	ImageList();
@@ -23,17 +27,12 @@ public:
 	Image& operator[] (size_t index);
 	const Image& operator[] (size_t index) const;
 
-	//Deletes corresponding files from disk and removes from the list if deletion successful
+	// Deletes corresponding files from disk and removes from the list if deletion successful
 	bool deleteFilesFromDisk (const std::vector<size_t>& indexes);
 
 	bool saveList (const QString& filename) const;
 	bool loadList (const QString& filename);
 
-	Signal0                   _signalListCleared;
-	Signal1<size_t /*index*/> _signalListChanged;
-
 private:
 	std::vector<Image> _list;
 };
-
-#endif // IMAGELIST_H

@@ -1,18 +1,9 @@
 TEMPLATE = subdirs
 
-SUBDIRS = sub_app sub_wpchanger sub_utility sub_image sub_qtutils sub_cpputils
+SUBDIRS = wpchanger_app wpchanger image qtutils cpputils cpp-template-utils
 
-sub_cpputils.subdir = cpputils
+qtutils.depends = sub_cpputils
 
-sub_image.subdir = image
+wpchanger.depends = image qtutils
 
-sub_utility.subdir = utility
-
-sub_qtutils.subdir = qtutils
-sub_qtutils.depends = sub_cpputils
-
-sub_wpchanger.subdir = wpchanger
-sub_wpchanger.depends = sub_image sub_qtutils
-
-sub_app.subdir = wpchanger_app
-sub_app.depends = sub_utility sub_image sub_wpchanger sub_qtutils
+wpchanger_app.depends = image wpchanger qtutils

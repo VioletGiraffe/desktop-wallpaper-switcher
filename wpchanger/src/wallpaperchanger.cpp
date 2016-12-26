@@ -31,10 +31,9 @@ WallpaperChanger::WallpaperChanger():
 
 	srand(time(0));
 
-	_signalTimeToNextSwitch.invoke(interval() - 1);
+	INVOKE_CALLBACK(timeToNextSwitch, interval() - 1);
 
-	_slotListChanged = _imageList._signalListChanged.connect(this, &WallpaperChanger::listChanged);
-	_slotListCleared = _imageList._signalListCleared.connect(this, &WallpaperChanger::listCleared);
+	_imageList.addSubscriber(this);
 }
 
 WallpaperChanger& WallpaperChanger::instance()
@@ -136,7 +135,7 @@ void WallpaperChanger::deleteImagesFromDisk(const std::vector<qulonglong> &batch
 	if (std::find(batchIDs.begin(), batchIDs.end(), _currentWPId) != batchIDs.end())
 	{
 		_currentWPId = invalid_id;
-		_signalWallpaperChanged.invoke(invalid_index);
+		INVOKE_CALLBACK(wallpaperChanged, invalid_index);
 	}
 }
 
@@ -219,8 +218,13 @@ bool WallpaperChanger::stopped() const
 	return _qTimer.isActive();
 }
 
+void WallpaperChanger::enableListUpdateCallbacks(bool enable /* = true*/)
+{
+	_bUpdatesEnabled = enable;
+}
+
 // Signal that image list has changed
-void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
+void WallpaperChanger::listChanged(size_t /*index*/)
 {
 	_currentWPId = invalid_id;
 	adjustHistoryForObsoleteImages();
@@ -230,7 +234,7 @@ void WallpaperChanger::listChanged(size_t /*index*/ /* = size_t_max*/)
 	}
 
 	if (_bUpdatesEnabled)
-		_signalListChanged.invoke(invalid_index);
+		INVOKE_CALLBACK(listChanged, invalid_index);
 }
 
 // Signal that image list has been cleared
@@ -240,12 +244,7 @@ void WallpaperChanger::listCleared()
 	_currentWPId = invalid_id;
 
 	if (_bUpdatesEnabled)
-		_signalListCleared.invoke();
-}
-
-void WallpaperChanger::enableListUpdateCallbacks(bool enable /* = true*/)
-{
-	_bUpdatesEnabled = enable;
+		INVOKE_CALLBACK(listCleared);
 }
 
 void WallpaperChanger::onTimeout()
@@ -258,13 +257,13 @@ void WallpaperChanger::onTimeout()
 		while (!nextWallpaper());
 	}
 
-	_signalTimeToNextSwitch.invoke(t);
+	INVOKE_CALLBACK(timeToNextSwitch, t);
 }
 
 // Sets the image as a wallpaper
 bool WallpaperChanger::setWallpaperImpl(size_t idx)
 {
-	QString normPath = normalizeFileName(image(idx).imageFilePath());
+	const QString normPath = normalizeFileName(image(idx).imageFilePath());
 
 #ifdef _WIN32
 	{
@@ -276,11 +275,11 @@ bool WallpaperChanger::setWallpaperImpl(size_t idx)
 		}
 		settings.setValue("WallpaperStyle", image(idx).stretchMode() == CENTERED ? "0" : "6");
 	}
-	BOOL succ =  SystemParametersInfoW(SPI_SETDESKWALLPAPER, 1, (void*)normPath.utf16(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+
+	const BOOL succ =  SystemParametersInfoW(SPI_SETDESKWALLPAPER, 1, (void*)normPath.utf16(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	if (succ)
-	{
-		_signalWallpaperChanged.invoke(idx);
-	}
+		INVOKE_CALLBACK(wallpaperChanged, idx);
+
 	return succ;
 #else
 #pragma warning "Setting wallpaper is not implemented for this platform"
@@ -310,13 +309,13 @@ void WallpaperChanger::adjustHistoryForObsoleteImages()
 	_previousWallPapers = newHistory;
 }
 
-QString WallpaperChanger::normalizeFileName( const QString filename )
+QString WallpaperChanger::normalizeFileName( QString filename )
 {
-	QString normalizedName (filename);
-	#ifdef _WIN32
-	normalizedName.replace('/', "\\");
-	#endif
-	return normalizedName;
+#ifdef _WIN32
+	return filename.replace('/', "\\");
+#else
+	return filename;
+#endif
 }
 
 bool WallpaperChanger::isSupportedImageFile( const QString& file )
