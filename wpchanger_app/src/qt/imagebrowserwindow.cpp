@@ -11,6 +11,7 @@
 #include <QWheelEvent>
 #include <QListWidgetItem>
 #include <QDesktopServices>
+#include <QShortcut>
 #include <QUrl>
 
 #include <cstdlib>
@@ -27,8 +28,11 @@ ImageBrowserWindow::ImageBrowserWindow(QWidget *parent) :
 	ui->setupUi(this);
 	ui->_thumbnailBrowser->setIconSize(QSize(200,200));
 
-	_zoomInShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this, SLOT(zoomIn()));
-	_zoomOutShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this, SLOT(zoomOut()));
+	QShortcut* zoomInShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
+	connect(zoomInShortcut, &QShortcut::activated, this, &ImageBrowserWindow::zoomIn);
+
+	QShortcut* zoomOutShortcut = new(std::nothrow) QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
+	connect(zoomOutShortcut, &QShortcut::activated, this, &ImageBrowserWindow::zoomOut);
 
 	connect(ui->_thumbnailBrowser, &QListWidget::customContextMenuRequested, this, &ImageBrowserWindow::showContextMenu);
 	connect(ui->_thumbnailBrowser, &QListWidget::itemActivated, this, &ImageBrowserWindow::itemActivated);

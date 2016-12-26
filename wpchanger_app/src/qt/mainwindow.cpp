@@ -76,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->action_About, SIGNAL(triggered()), SLOT(onActionAboutTriggered()));
 
 	_imageListFilterDialog.setParent(ui->_imageList);
+	_imageListFilterDialog.hide();
 	connect(&_imageListFilterDialog, SIGNAL(filterTextChanged(QString)), SLOT(searchByFilename(QString)));
 
 	setAcceptDrops(true);

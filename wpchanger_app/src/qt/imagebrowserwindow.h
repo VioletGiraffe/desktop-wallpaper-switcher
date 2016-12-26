@@ -1,8 +1,6 @@
-#ifndef IMAGEBROWSERWINDOW_H
-#define IMAGEBROWSERWINDOW_H
+#pragma once
 
 #include <QMainWindow>
-#include <QShortcut>
 
 class ImageList;
 class QListWidgetItem;
@@ -44,9 +42,6 @@ private:
 	qulonglong imageIdByPath (const QString& path) const;
 
 private:
-	QShortcut              * _zoomInShortcut, * _zoomOutShortcut;
 	WallpaperChanger       & _wpChanger;
 	Ui::ImageBrowserWindow * ui;
 };
-
-#endif // IMAGEBROWSERWINDOW_H
