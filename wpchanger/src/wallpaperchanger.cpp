@@ -31,7 +31,7 @@ WallpaperChanger::WallpaperChanger():
 
 	srand(time(0));
 
-	INVOKE_CALLBACK(timeToNextSwitch, interval() - 1);
+	invokeCallback(&WallpaperWatcher::timeToNextSwitch, interval() - 1);
 
 	_imageList.addSubscriber(this);
 }
@@ -130,7 +130,7 @@ void WallpaperChanger::deleteImagesFromDisk(const std::vector<qulonglong> &batch
 	if (std::find(batchIDs.begin(), batchIDs.end(), _currentWPId) != batchIDs.end())
 	{
 		_currentWPId = invalid_id;
-		INVOKE_CALLBACK(wallpaperChanged, invalid_index);
+		invokeCallback(&WallpaperWatcher::wallpaperChanged, invalid_index);
 	}
 }
 
@@ -229,7 +229,7 @@ void WallpaperChanger::listChanged(size_t /*index*/)
 	}
 
 	if (_bUpdatesEnabled)
-		INVOKE_CALLBACK(listChanged, invalid_index);
+		invokeCallback(&WallpaperWatcher::listChanged, invalid_index);
 }
 
 // Signal that image list has been cleared
@@ -239,7 +239,7 @@ void WallpaperChanger::listCleared()
 	_currentWPId = invalid_id;
 
 	if (_bUpdatesEnabled)
-		INVOKE_CALLBACK(listCleared);
+		invokeCallback(&WallpaperWatcher::listCleared);
 }
 
 void WallpaperChanger::onTimeout()
@@ -252,7 +252,7 @@ void WallpaperChanger::onTimeout()
 		while (!nextWallpaper());
 	}
 
-	INVOKE_CALLBACK(timeToNextSwitch, t);
+	invokeCallback(&WallpaperWatcher::timeToNextSwitch, t);
 }
 
 // Sets the image as a wallpaper
@@ -273,7 +273,7 @@ bool WallpaperChanger::setWallpaperImpl(size_t idx)
 
 	const BOOL succ =  SystemParametersInfoW(SPI_SETDESKWALLPAPER, 1, (void*)normPath.utf16(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 	if (succ)
-		INVOKE_CALLBACK(wallpaperChanged, idx);
+		invokeCallback(&WallpaperWatcher::wallpaperChanged, idx);
 
 	return succ;
 #else

@@ -19,7 +19,7 @@ size_t ImageList::size() const
 void ImageList::addImage(const Image &image)
 {
 	_list.push_back(image);
-	INVOKE_CALLBACK(listChanged, size() - 1);
+	invokeCallback(&ImageListWatcher::listChanged, size() - 1);
 }
 
 void ImageList::removeImages(const std::vector<size_t> &indexes)
@@ -33,12 +33,12 @@ void ImageList::removeImages(const std::vector<size_t> &indexes)
 	}
 	_list = newList;
 
-	INVOKE_CALLBACK(listChanged, invalid_index);
+	invokeCallback(&ImageListWatcher::listChanged, invalid_index);
 }
 
 void ImageList::clear()
 {
-	INVOKE_CALLBACK(listCleared);
+	invokeCallback(&ImageListWatcher::listCleared);
 	_list.clear();
 }
 
@@ -100,7 +100,7 @@ bool ImageList::loadList( const QString& filename )
 		file.read(path, pathLength);
 	}
 
-	INVOKE_CALLBACK(listChanged, invalid_index);
+	invokeCallback(&ImageListWatcher::listChanged, invalid_index);
 	return true;
 }
 
@@ -131,7 +131,7 @@ bool ImageList::deleteFilesFromDisk(const std::vector<size_t> &indexes)
 
 	_list = newList;
 
-	INVOKE_CALLBACK(listChanged, invalid_index);
+	invokeCallback(&ImageListWatcher::listChanged, invalid_index);
 
 	return true;
 }
