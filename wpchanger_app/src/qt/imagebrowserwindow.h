@@ -1,6 +1,10 @@
 #pragma once
 
+#include "compiler/compiler_warnings_control.h"
+
+DISABLE_COMPILER_WARNINGS
 #include <QMainWindow>
+RESTORE_COMPILER_WARNINGS
 
 class ImageList;
 class QListWidgetItem;
@@ -24,7 +28,8 @@ public:
 	void deleteSelectedImagesFromDisk();
 
 protected:
-	bool event(QEvent * event) override;
+	void showEvent(QShowEvent *event) override;
+	void closeEvent(QCloseEvent *event) override;
 
 private:
 	void showContextMenu(const QPoint& pos);

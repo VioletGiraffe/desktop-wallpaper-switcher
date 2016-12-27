@@ -1,7 +1,9 @@
 #include "imagelist.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QDebug>
 #include <QFile>
+RESTORE_COMPILER_WARNINGS
 
 #include <algorithm>
 #include <fstream>

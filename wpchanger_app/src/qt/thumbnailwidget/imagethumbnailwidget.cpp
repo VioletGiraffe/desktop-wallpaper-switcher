@@ -1,9 +1,11 @@
 #include "imagethumbnailwidget.h"
 #include "image.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QPainter>
 #include <QImage>
 #include <QDebug>
+RESTORE_COMPILER_WARNINGS
 
 #include <time.h>
 

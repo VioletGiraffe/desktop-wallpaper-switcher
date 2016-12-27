@@ -2,7 +2,9 @@
 
 #include "image.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QWidget>
+RESTORE_COMPILER_WARNINGS
 
 namespace Ui {
 	class ThumbnailExplorerElement;

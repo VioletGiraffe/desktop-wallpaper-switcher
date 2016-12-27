@@ -1,8 +1,12 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <QString>
+#include "compiler/compiler_warnings_control.h"
+
+DISABLE_COMPILER_WARNINGS
 #include <QImage>
+#include <QString>
+RESTORE_COMPILER_WARNINGS
 
 class QWidget;
 

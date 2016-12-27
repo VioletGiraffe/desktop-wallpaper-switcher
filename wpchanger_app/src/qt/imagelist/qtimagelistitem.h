@@ -1,8 +1,12 @@
 #ifndef IMAGELISTITEM_H
 #define IMAGELISTITEM_H
 
+#include "compiler/compiler_warnings_control.h"
 #include "image.h"
+
+DISABLE_COMPILER_WARNINGS
 #include <QTreeWidgetItem>
+RESTORE_COMPILER_WARNINGS
 
 const int IdRole = Qt::UserRole + 1;
 

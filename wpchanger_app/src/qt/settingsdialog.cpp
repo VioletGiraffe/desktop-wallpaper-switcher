@@ -1,8 +1,11 @@
 #include "settingsdialog.h"
-#include "ui_settingsdialog.h"
 
 #include "settings.h"
 #include "settings/csettings.h"
+
+DISABLE_COMPILER_WARNINGS
+#include "ui_settingsdialog.h"
+RESTORE_COMPILER_WARNINGS
 
 SettingsDialog::SettingsDialog(QWidget *parent) :
 	QDialog(parent),

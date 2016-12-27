@@ -3,6 +3,7 @@
 #include "wallpaperchanger.h"
 #include "system/ctimeelapsed.h"
 
+DISABLE_COMPILER_WARNINGS
 #include "ui_imagebrowserwindow.h"
 
 #include <QMessageBox>
@@ -13,6 +14,7 @@
 #include <QDesktopServices>
 #include <QShortcut>
 #include <QUrl>
+RESTORE_COMPILER_WARNINGS
 
 #include <cstdlib>
 #include <omp.h>
@@ -51,7 +53,6 @@ bool ImageBrowserWindow::populate()
 
 	std::vector<QListWidgetItem*> items(_wpChanger.numImages(), nullptr);
 
-	//omp_set_num_threads(omp_get_num_threads() > 4 ? 4 : omp_get_num_threads());
 #pragma omp parallel for schedule(static,50)
 	for (int i = 0; i < (int)_wpChanger.numImages(); ++i)
 	{
@@ -63,26 +64,14 @@ bool ImageBrowserWindow::populate()
 		}
 	}
 
-	for (size_t i = 0; i < _wpChanger.numImages(); ++i)
-	{
-		if (items[i])
-			ui->_thumbnailBrowser->addItem(items[i]);
-	}
+	qDebug() << "Creating" << items.size() << "items took" << stopWatch.elapsed() / 1000.0f << "seconds";
+	stopWatch.start();
 
-	qDebug() << "Populating explorer with" << _wpChanger.numImages() << "thumbnails took" << stopWatch.elapsed<std::chrono::seconds>() << "seconds";
+	for (QListWidgetItem* item: items)
+		ui->_thumbnailBrowser->addItem(item);
+
+	qDebug() << "Populating explorer with" << items.size() << "thumbnails took" << stopWatch.elapsed<std::chrono::seconds>() << "seconds";
 	return true;
-}
-
-bool ImageBrowserWindow::event(QEvent * event)
-{
-	if (event->type() == QEvent::Show)
-	{
-		populate();
-		raise();
-		activateWindow();
-	}
-
-	return QMainWindow::event(event);
 }
 
 void ImageBrowserWindow::showContextMenu(const QPoint &pos)
@@ -139,6 +128,22 @@ void ImageBrowserWindow::deleteSelectedImagesFromDisk()
 
 
 	_wpChanger.deleteImagesFromDisk(idsToRemove);
+}
+
+void ImageBrowserWindow::showEvent(QShowEvent *event)
+{
+	QMainWindow::showEvent(event);
+
+	populate();
+	raise();
+	activateWindow();
+}
+
+void ImageBrowserWindow::closeEvent(QCloseEvent *event)
+{
+	QMainWindow::closeEvent(event);
+
+	ui->_thumbnailBrowser->clear();
 }
 
 // Will also delete item!

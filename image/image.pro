@@ -36,6 +36,9 @@ MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
 RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
+INCLUDEPATH += \
+	../cpputils
+
 HEADERS += \
 	src/image.h
 

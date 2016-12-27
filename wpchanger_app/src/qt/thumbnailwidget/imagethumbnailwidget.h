@@ -1,8 +1,12 @@
 #ifndef IMAGETHUMBNAILWIDGET_H
 #define IMAGETHUMBNAILWIDGET_H
 
+#include "compiler/compiler_warnings_control.h"
+
+DISABLE_COMPILER_WARNINGS
 #include <QImage>
 #include <QWidget>
+RESTORE_COMPILER_WARNINGS
 
 class Image;
 

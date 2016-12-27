@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "compiler/compiler_warnings_control.h"
+
 #include "wallpaperchanger.h"
 #include "imagelist/qtimagelistitem.h"
 #include "thumbnailwidget/imagethumbnailwidget.h"
@@ -8,10 +10,12 @@
 
 #include "imagelist/cfilterdialog.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QLabel>
 #include <QMainWindow>
 #include <QProgressBar>
 #include <QSystemTrayIcon>
+RESTORE_COMPILER_WARNINGS
 
 #include <vector>
 #include <map>

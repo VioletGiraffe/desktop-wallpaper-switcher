@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 #include "aboutdialog/caboutdialog.h"
 
 #include "imagelist/qtimagelistitem.h"
@@ -7,6 +6,9 @@
 #include "settings.h"
 #include "settings/csettings.h"
 #include "system/ctimeelapsed.h"
+
+DISABLE_COMPILER_WARNINGS
+#include "ui_mainwindow.h"
 
 #include <QFileDialog>
 #include <QTreeView>
@@ -22,6 +24,7 @@
 #include <QHeaderView>
 #include <QDesktopServices>
 #include <QStandardPaths>
+RESTORE_COMPILER_WARNINGS
 
 #include <thread>
 
@@ -527,7 +530,7 @@ void MainWindow::displayModeChanged (int mode)
 	const int numSelected = selected.size();
 	for (int i = 0; i < numSelected; ++i)
 	{
-		const qulonglong itemIdx = _wpChanger.indexByID(selected[i]->data(0, IdRole).toULongLong());
+		const size_t itemIdx = (size_t)_wpChanger.indexByID(selected[i]->data(0, IdRole).toULongLong());
 		_wpChanger.image(itemIdx).setStretchMode(WPOPTIONS(mode));
 	}
 

@@ -2,12 +2,14 @@
 #include "settings.h"
 #include "settings/csettings.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
 #include <QStringList>
+RESTORE_COMPILER_WARNINGS
 
 #include <algorithm>
 #include <time.h>
@@ -29,7 +31,7 @@ WallpaperChanger::WallpaperChanger():
 		onTimeout();
 	});
 
-	srand(time(0));
+	srand((unsigned int)time(nullptr));
 
 	invokeCallback(&WallpaperWatcher::timeToNextSwitch, interval() - 1);
 
@@ -275,7 +277,7 @@ bool WallpaperChanger::setWallpaperImpl(size_t idx)
 	if (succ)
 		invokeCallback(&WallpaperWatcher::wallpaperChanged, idx);
 
-	return succ;
+	return succ != 0;
 #else
 #pragma warning "Setting wallpaper is not implemented for this platform"
 #if defined __linux__

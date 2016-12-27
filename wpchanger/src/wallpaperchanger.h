@@ -1,13 +1,18 @@
 #ifndef WALLPAPERCHANGER_H
 #define WALLPAPERCHANGER_H
 
+#include "compiler/compiler_warnings_control.h"
+
 #include "imagelist.h"
 #include "historylist/chistorylist.h"
 
-#include <map>
+DISABLE_COMPILER_WARNINGS
 #include <QString>
 #include <QTime>
 #include <QTimer>
+RESTORE_COMPILER_WARNINGS
+
+#include <map>
 
 struct WallpaperWatcher {
 	virtual void wallpaperChanged(size_t) = 0;

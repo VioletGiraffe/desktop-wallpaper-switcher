@@ -1,6 +1,6 @@
 #include "image.h"
 
-#include <assert.h>
+DISABLE_COMPILER_WARNINGS
 #include <QDir>
 #include <QFileInfo>
 #include <QImageReader>
@@ -8,6 +8,9 @@
 #include <QUuid>
 #include <QFile>
 #include <QDebug>
+RESTORE_COMPILER_WARNINGS
+
+#include <assert.h>
 
 Image::Image() :_id(0u), _isValid(false)
 {
@@ -38,7 +41,8 @@ bool Image::loadFromFile( const QString& filename )
 	else
 	{
 		QImageReader reader (filename);
-		if (_isValid = reader.canRead())
+		_isValid = reader.canRead();
+		if (_isValid)
 		{
 			_params._width = reader.size().width();
 			_params._height = reader.size().height();
@@ -62,7 +66,7 @@ bool Image::loadFromFile( const QString& filename )
 			else if (extension == "png")
 				_params._fmt = PNG;
 
-			_params._fileSize = info.size();
+			_params._fileSize = (int)info.size();
 		}
 	}
 
