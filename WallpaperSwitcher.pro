@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = wpchanger_app wpchanger image qtutils cpputils cpp-template-utils
 
-qtutils.depends = sub_cpputils
+qtutils.depends = cpputils
 
 wpchanger.depends = image qtutils
 

@@ -15,11 +15,7 @@ UninstallDisplayIcon={app}\WallpaperSwitcher.exe
 
 AppCopyright=VioletGiraffe
 WizardImageBackColor=clWhite
-;WizardImageFile=setup\large_logo.bmp
-;WizardSmallImageFile=setup\small_logo.bmp
 ShowTasksTreeLines=yes
-
-;ArchitecturesInstallIn64BitMode=x64
 
 SolidCompression=true
 Compression=lzma2/ultra64
@@ -57,24 +53,3 @@ Name: {userdesktop}\Wallpaper Switcher; Filename: {app}\WallpaperSwitcher.exe; T
 
 [Run]
 Filename: {app}\WallpaperSwitcher.exe; Description: {cm:LaunchProgram,Wallpaper Switcher}; Flags: nowait postinstall skipifsilent
-
-[Languages]
-Name: English; MessagesFile: compiler:Default.isl
-Name: German; MessagesFile: compiler:Languages\German.isl
-Name: Russian; MessagesFile: compiler:Languages\Russian.isl
-Name: BrazilianPortuguese; MessagesFile: compiler:Languages\BrazilianPortuguese.isl
-Name: Catalan; MessagesFile: compiler:Languages\Catalan.isl
-Name: Czech; MessagesFile: compiler:Languages\Czech.isl
-Name: Danish; MessagesFile: compiler:Languages\Danish.isl
-Name: Dutch; MessagesFile: compiler:Languages\Dutch.isl
-Name: Finnish; MessagesFile: compiler:Languages\Finnish.isl
-Name: French; MessagesFile: compiler:Languages\French.isl
-Name: Hebrew; MessagesFile: compiler:Languages\Hebrew.isl
-Name: Hungarian; MessagesFile: compiler:Languages\Hungarian.isl
-Name: Italian; MessagesFile: compiler:Languages\Italian.isl
-Name: Japanese; MessagesFile: compiler:Languages\Japanese.isl
-Name: Norwegian; MessagesFile: compiler:Languages\Norwegian.isl
-Name: Polish; MessagesFile: compiler:Languages\Polish.isl
-Name: Portuguese; MessagesFile: compiler:Languages\Portuguese.isl
-Name: Slovenian; MessagesFile: compiler:Languages\Slovenian.isl
-Name: Spanish; MessagesFile: compiler:Languages\Spanish.isl
