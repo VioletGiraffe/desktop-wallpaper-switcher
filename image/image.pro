@@ -9,8 +9,21 @@ mac* | linux*{
 	CONFIG(debug, debug|release):CONFIG += Debug
 }
 
-Release:OUTPUT_DIR=release
-Debug:OUTPUT_DIR=debug
+contains(QT_ARCH, x86_64) {
+	ARCHITECTURE = x64
+} else {
+	ARCHITECTURE = x86
+}
+
+
+Release:OUTPUT_DIR=release/$${ARCHITECTURE}
+Debug:OUTPUT_DIR=debug/$${ARCHITECTURE}
+
+DESTDIR  = ../bin/$${OUTPUT_DIR}
+OBJECTS_DIR = ../build/$${OUTPUT_DIR}/$${TARGET}
+MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
+UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
+RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
 win*{
 	QMAKE_CXXFLAGS += /MP /wd4251
@@ -23,18 +36,12 @@ win*{
 
 mac* | linux* {
 	QMAKE_CFLAGS   += -pedantic-errors -std=c99
-	QMAKE_CXXFLAGS += -pedantic-errors
+	QMAKE_CXXFLAGS += -pedantic-errors /FS
 	QMAKE_CXXFLAGS_WARN_ON = -Wall -Wno-c++11-extensions -Wno-local-type-template-args -Wno-deprecated-register
 
 	Release:DEFINES += NDEBUG=1
 	Debug:DEFINES += _DEBUG
 }
-
-DESTDIR  = ../bin/$${OUTPUT_DIR}
-OBJECTS_DIR = ../build/$${OUTPUT_DIR}/$${TARGET}
-MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
-UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
-RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
 INCLUDEPATH += \
 	../cpputils

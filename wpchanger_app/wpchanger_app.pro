@@ -8,8 +8,21 @@ mac* | linux*{
 	CONFIG(debug, debug|release):CONFIG += Debug
 }
 
-Release:OUTPUT_DIR=release
-Debug:OUTPUT_DIR=debug
+contains(QT_ARCH, x86_64) {
+	ARCHITECTURE = x64
+} else {
+	ARCHITECTURE = x86
+}
+
+
+Release:OUTPUT_DIR=release/$${ARCHITECTURE}
+Debug:OUTPUT_DIR=debug/$${ARCHITECTURE}
+
+DESTDIR  = ../bin/$${OUTPUT_DIR}
+OBJECTS_DIR = ../build/$${OUTPUT_DIR}/$${TARGET}
+MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
+UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
+RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
 win*{
 	QMAKE_CXXFLAGS += /MP /wd4251 /openmp
@@ -30,12 +43,6 @@ mac* | linux* {
 	Release:DEFINES += NDEBUG=1
 	Debug:DEFINES += _DEBUG
 }
-
-DESTDIR  = ../bin/$${OUTPUT_DIR}
-OBJECTS_DIR = ../build/$${OUTPUT_DIR}/$${TARGET}
-MOC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
-UI_DIR      = ../build/$${OUTPUT_DIR}/$${TARGET}
-RCC_DIR     = ../build/$${OUTPUT_DIR}/$${TARGET}
 
 LIBS += -L$${DESTDIR} -limage -lwpchanger -lqtutils -lcpputils
 
